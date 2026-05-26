@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MedLab Reference — Medical Test Database</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1800215132568729" crossorigin="anonymous"></script>
+<script type="module">
+  import { initializeApp }                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const firebaseConfig = {
+    apiKey:"AIzaSyA1QvsZosAd0MEmGKlktHsqyzOfm4-9lI4",
+    authDomain:"medlab-db.firebaseapp.com",
+    projectId:"medlab-db",
+    storageBucket:"medlab-db.firebasestorage.app",
+    messagingSenderId:"310991760752",
+    appId:"1:310991760752:web:15d7e49ef4a84f8a78b3b5"
+  };
+  try {
+    const app  = initializeApp(firebaseConfig);
+    const db   = getFirestore(app);
+    const auth = getAuth(app);
+    window._db         = db;
+    window._col        = () => collection(db, "medtests");
+    window._docRef     = (id) => doc(db, "medtests", String(id));
+    window._userDocRef = (uid) => doc(db, "users", uid);
+    window._setDoc     = setDoc;
+    window._getDoc     = getDoc;
+    window._deleteDoc  = deleteDoc;
+    window._getDocs    = getDocs;
+    window._writeBatch = writeBatch;
+    window._auth       = auth;
+    window._signIn     = (e,p) => signInWithEmailAndPassword(auth,e,p);
+    window._signUp     = (e,p) => createUserWithEmailAndPassword(auth,e,p);
+    window._signOut    = () => signOut(auth);
+    window._updateProfile = (u,d) => updateProfile(u,d);
+    onAuthStateChanged(auth, (user) => {
+      window._currentUser = user || null;
+      onAuthChange(user);
+    });
+    window._firebaseReady = true;
+  } catch(e) {
+    window._firebaseError = e.message;
+    window._firebaseReady = false;
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Material Design Token System ─────────────────────── */
+:root,[data-theme="light"] {
+  --primary:       #6200EE;
+  --primary-var:   #3700B3;
+  --secondary:     #03DAC6;
+  --secondary-var: #018786;
+  --bg:            #FFFFFF;
+  --surface:       #FFFFFF;
+  --surface2:      #F5F5F5;
+  --error:         #B00020;
+  --on-primary:    #FFFFFF;
+  --on-secondary:  #000000;
+  --on-bg:         #000000;
+  --on-surface:    #000000;
+  --on-error:      #FFFFFF;
+  --text:          #000000;
+  --text2:         #333333;
+  --muted:         #757575;
+  --border:        #E0E0E0;
+  --divider:       #EEEEEE;
+  --shadow-key:    rgba(0,0,0,0.2);
+  --shadow-amb:    rgba(0,0,0,0.14);
+  --overlay:       rgba(0,0,0,0.32);
+  --ripple:        rgba(98,0,238,0.12);
+  --accent:        #6200EE;
+  --accent-lt:     rgba(98,0,238,0.08);
+  --green:         #018786;
+  --red:           #B00020;
+  --amber:         #FF6D00;
+  --font-head:     'Roboto', sans-serif;
+  --font-body:     'Roboto', sans-serif;
+  --font-mono:     'Roboto Mono', monospace;
+  --radius:        4px;
+  --radius-md:     8px;
+  --radius-lg:     16px;
+  --elev1: 0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12);
+  --elev2: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+  --elev4: 0 2px 4px -1px rgba(0,0,0,.2),0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12);
+  --elev8: 0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);
+}
+[data-theme="dark"] {
+  --primary:       #BB86FC;
+  --primary-var:   #3700B3;
+  --secondary:     #03DAC6;
+  --secondary-var: #03DAC6;
+  --bg:            #121212;
+  --surface:       #1E1E1E;
+  --surface2:      #2C2C2C;
+  --error:         #CF6679;
+  --on-primary:    #000000;
+  --on-secondary:  #000000;
+  --on-bg:         #FFFFFF;
+  --on-surface:    #FFFFFF;
+  --on-error:      #000000;
+  --text:          #FFFFFF;
+  --text2:         #CCCCCC;
+  --muted:         #9E9E9E;
+  --border:        #333333;
+  --divider:       #2A2A2A;
+  --shadow-key:    rgba(0,0,0,0.5);
+  --shadow-amb:    rgba(0,0,0,0.4);
+  --overlay:       rgba(0,0,0,0.6);
+  --ripple:        rgba(187,134,252,0.12);
+  --accent:        #BB86FC;
+  --accent-lt:     rgba(187,134,252,0.12);
+  --green:         #03DAC6;
+  --red:           #CF6679;
+  --amber:         #FFB74D;
+  --elev1: 0 2px 1px -1px rgba(0,0,0,.4),0 1px 1px 0 rgba(0,0,0,.3),0 1px 3px 0 rgba(0,0,0,.3);
+  --elev2: 0 3px 1px -2px rgba(0,0,0,.4),0 2px 2px 0 rgba(0,0,0,.3),0 1px 5px 0 rgba(0,0,0,.3);
+  --elev4: 0 2px 4px -1px rgba(0,0,0,.4),0 4px 5px 0 rgba(0,0,0,.3),0 1px 10px 0 rgba(0,0,0,.3);
+  --elev8: 0 5px 5px -3px rgba(0,0,0,.4),0 8px 10px 1px rgba(0,0,0,.3),0 3px 14px 2px rgba(0,0,0,.3);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;overflow-x:hidden;transition:background .25s,color .25s;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── Top App Bar ── */
+.appbar{position:sticky;top:0;z-index:200;background:var(--primary);color:var(--on-primary);box-shadow:var(--elev4);display:flex;align-items:center;padding:0 8px 0 4px;height:56px;gap:4px}
+.appbar-menu-btn{background:none;border:none;color:var(--on-primary);width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:background .15s}
+.appbar-menu-btn:hover{background:rgba(255,255,255,0.12)}
+.appbar-logo{width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-right:4px}
+.appbar-title{font-size:20px;font-weight:500;letter-spacing:0.15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appbar-actions{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.icon-btn{background:none;border:none;color:var(--on-primary);width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .15s;position:relative}
+.icon-btn:hover{background:rgba(255,255,255,0.12)}
+.icon-btn .badge{position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--secondary);border-radius:50%;border:1.5px solid var(--primary)}
+
+/* ── Theme Toggle ── */
+.theme-toggle{background:rgba(255,255,255,0.15);border:none;color:var(--on-primary);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.theme-toggle:hover{background:rgba(255,255,255,0.25)}
+
+/* ── Firebase badge ── */
+.fb-badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:12px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);letter-spacing:0.3px}
+.fb-badge.offline{background:rgba(207,102,121,0.3);color:#FFB3BF}
+
+/* ── Nav Drawer ── */
+.drawer-overlay{position:fixed;inset:0;background:var(--overlay);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--surface);z-index:301;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:var(--elev8);display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-header{background:var(--primary);padding:24px 16px 16px;color:var(--on-primary)}
+.drawer-header-logo{font-size:32px;margin-bottom:8px}
+.drawer-header-title{font-size:18px;font-weight:500;margin-bottom:2px}
+.drawer-header-sub{font-size:12px;opacity:0.7}
+.drawer-user{background:rgba(255,255,255,0.1);border-radius:4px;padding:8px 12px;margin-top:12px;font-size:12px;display:flex;align-items:center;gap:8px}
+.drawer-user-avatar{width:28px;height:28px;background:var(--secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--on-secondary);font-weight:700;flex-shrink:0}
+.drawer-nav{flex:1;overflow-y:auto;padding:8px 0}
+.drawer-section-title{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:12px 16px 4px}
+.drawer-item{display:flex;align-items:center;gap:16px;padding:12px 16px;cursor:pointer;transition:background .15s;color:var(--text2);font-size:14px;font-weight:400;border:none;background:none;width:100%;text-align:left;text-decoration:none}
+.drawer-item:hover{background:var(--accent-lt)}
+.drawer-item.active{background:var(--accent-lt);color:var(--accent);font-weight:500}
+.drawer-item-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.drawer-divider{height:1px;background:var(--divider);margin:4px 0}
+.drawer-footer{padding:12px 16px;border-top:1px solid var(--divider);font-size:11px;color:var(--muted)}
+
+/* ── Search bar (below appbar) ── */
+.search-section{background:var(--primary);padding:0 16px 14px}
+.search-box{background:rgba(255,255,255,0.15);border:none;border-radius:4px;display:flex;align-items:center;padding:0 12px;gap:8px;transition:background .15s}
+.search-box:focus-within{background:rgba(255,255,255,0.25)}
+.search-icon-el{font-size:18px;color:rgba(255,255,255,0.7);flex-shrink:0}
+.search-input{background:transparent;border:none;outline:none;color:white;font-family:var(--font-body);font-size:15px;font-weight:300;padding:10px 0;flex:1;width:100%}
+.search-input::placeholder{color:rgba(255,255,255,0.6)}
+.search-clear-btn{background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:16px;padding:4px;display:none;line-height:1}
+.search-clear-btn.show{display:block}
+
+/* ── Hero ── */
+.hero{padding:48px 24px 36px;text-align:center;border-bottom:1px solid var(--divider)}
+.hero-chip{display:inline-flex;align-items:center;gap:5px;background:var(--accent-lt);border-radius:16px;padding:4px 12px;font-size:12px;font-weight:500;color:var(--accent);margin-bottom:16px;letter-spacing:0.25px}
+.hero h1{font-size:clamp(26px,4vw,42px);font-weight:300;color:var(--text);letter-spacing:-0.5px;margin-bottom:10px;line-height:1.2}
+.hero h1 strong{font-weight:700;color:var(--primary)}
+.hero p{font-size:14px;color:var(--muted);max-width:440px;margin:0 auto;line-height:1.6;font-weight:400}
+
+/* ── Stats ── */
+.stats-row{display:flex;justify-content:center;gap:40px;padding:24px;flex-wrap:wrap;border-bottom:1px solid var(--divider)}
+.stat{text-align:center}
+.stat-num{font-size:24px;font-weight:700;color:var(--primary);font-family:var(--font-mono);letter-spacing:-0.5px}
+.stat-label{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px;letter-spacing:0.4px;text-transform:uppercase}
+
+/* ── Category Chips ── */
+.filter-section{padding:16px 16px 0;overflow-x:auto;scrollbar-width:none}
+.filter-section::-webkit-scrollbar{display:none}
+.filter-label{font-size:10px;color:var(--muted);font-weight:500;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;padding:0 2px}
+.filter-pills{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:4px}
+.specimen-section{padding:14px 16px 0;background:var(--surface);border-bottom:1px solid var(--border)}
+.specimen-label{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px}
+.specimen-pills{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.specimen-pills::-webkit-scrollbar{display:none}
+.specimen-pill{
+  white-space:nowrap;padding:7px 16px;border-radius:50px;
+  border:1.5px solid var(--border);background:var(--surface2);
+  color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .15s;flex-shrink:0;font-family:var(--font-body);
+}
+.specimen-pill:hover{border-color:var(--primary);color:var(--primary);}
+.specimen-pill.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+.pill{padding:5px 14px;border-radius:16px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:0.25px}
+.pill:hover{border-color:var(--primary);color:var(--primary)}
+.pill.active{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:500;box-shadow:var(--elev2)}
+
+/* ── Main ── */
+.main{padding:16px}
+.results-info{font-size:12px;color:var(--muted);margin-bottom:16px;font-weight:400;letter-spacing:0.25px}
+.results-info span{color:var(--primary);font-weight:500}
+
+/* ── Category Section ── */
+.category-section{margin-bottom:28px}
+.cat-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:0 2px}
+.cat-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.cat-name{font-size:12px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);flex:1}
+.cat-divider{flex:1;height:1px;background:var(--divider)}
+.cat-count{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;color:white;letter-spacing:0.3px}
+
+/* ── Test Grid ── */
+.test-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.test-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 14px 12px;cursor:pointer;transition:box-shadow .2s,transform .15s;position:relative;overflow:hidden;box-shadow:var(--elev1)}
+.test-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:4px 0 0 4px}
+.test-card:hover{box-shadow:var(--elev4);transform:translateY(-1px)}
+.test-card.user-custom::after{content:'★';position:absolute;top:8px;right:10px;font-size:11px;color:var(--secondary)}
+.test-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.test-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.35;letter-spacing:0.1px}
+.test-desc{font-size:11.5px;color:var(--muted);line-height:1.4;font-weight:400}
+.test-range{text-align:right;flex-shrink:0}
+.range-badge{font-family:var(--font-mono);font-size:11px;font-weight:500;padding:3px 8px;border-radius:4px;white-space:nowrap;margin-bottom:3px;letter-spacing:0.3px}
+.range-unit{font-size:10px;color:var(--muted);text-align:right;font-family:var(--font-mono)}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:0.5}
+.empty h3{font-size:17px;font-weight:500;color:var(--text2);margin-bottom:6px}
+
+/* ── Overlay / Modal ── */
+.overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(3px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;overflow:hidden;box-shadow:var(--elev8);transform:translateY(16px) scale(0.97);transition:transform .22s}
+.overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-max-sm{max-width:400px}
+.modal-max-md{max-width:480px}
+.modal-max-lg{max-width:540px}
+.modal-max-xs{max-width:360px}
+.modal-scroll{max-height:90vh;overflow-y:auto}
+
+/* ── Modal Headers ── */
+.modal-header-primary{background:var(--primary);color:var(--on-primary);padding:22px 20px 18px;position:relative}
+.modal-header-secondary{background:var(--secondary);color:var(--on-secondary);padding:22px 20px 18px;position:relative}
+.modal-header-dark{background:var(--surface2);color:var(--text);padding:22px 20px 18px;border-bottom:1px solid var(--border);position:relative}
+.modal-header-error{background:var(--error);color:var(--on-error);padding:22px 20px 18px;position:relative}
+.modal-title{font-size:20px;font-weight:500;margin-bottom:3px;letter-spacing:0.15px}
+.modal-sub{font-size:12.5px;opacity:0.75;font-weight:400}
+.modal-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.15);border:none;color:inherit;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.modal-close:hover{background:rgba(255,255,255,0.28)}
+.modal-close.dark{background:var(--surface);color:var(--text2)}
+.modal-close.dark:hover{background:var(--border)}
+.modal-body{padding:20px}
+
+/* ── Detail Modal ── */
+.detail-desc-box{background:var(--surface2);border-radius:var(--radius);padding:11px 13px;font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;border-left:3px solid var(--secondary)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.detail-cell{background:var(--surface2);border-radius:var(--radius);padding:12px 8px;text-align:center;border:1px solid var(--border)}
+.detail-cell-emoji{font-size:17px;margin-bottom:5px}
+.detail-cell-val{font-family:var(--font-mono);font-size:15px;font-weight:700;margin-bottom:3px}
+.detail-cell-label{font-size:9.5px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+.range-bar-wrap{background:var(--surface2);border-radius:4px;height:30px;position:relative;overflow:hidden;border:1px solid var(--border)}
+.range-bar-fill{position:absolute;left:12%;right:12%;top:0;bottom:0;opacity:0.8}
+.range-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;font-family:var(--font-mono);color:var(--text)}
+.range-bar-hints{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--muted)}
+.user-range-section{margin-top:14px;border-top:1px solid var(--divider);padding-top:14px}
+.user-range-title{font-size:11px;font-weight:500;color:var(--secondary);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.user-range-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.user-range-input{background:var(--surface2);border:1.5px solid var(--border);border-radius:4px;padding:7px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;outline:none;width:100%;transition:border-color .15s}
+.user-range-input:focus{border-color:var(--secondary)}
+.btn-save-range{padding:8px 18px;background:var(--secondary);border:none;border-radius:4px;color:var(--on-secondary);font-weight:500;font-size:13px;cursor:pointer;transition:opacity .15s}
+.btn-save-range:hover{opacity:0.88}
+.btn-reset-range{padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s;margin-left:6px}
+.btn-reset-range:hover{border-color:var(--error);color:var(--error)}
+.login-prompt{background:var(--accent-lt);border-radius:4px;padding:10px 12px;font-size:12.5px;color:var(--text2);display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .15s}
+.login-prompt:hover{background:var(--ripple)}
+.login-prompt-icon{font-size:16px;flex-shrink:0}
+
+/* ── Forms ── */
+.form-group{margin-bottom:14px}
+.form-label{font-size:11.5px;font-weight:500;color:var(--muted);margin-bottom:6px;display:block;letter-spacing:0.4px;text-transform:uppercase}
+.form-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:4px;padding:10px 13px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s;margin-bottom:0}
+.form-input:focus{border-color:var(--primary)}
+.form-input.error{border-color:var(--error)}
+.form-input.secondary:focus{border-color:var(--secondary)}
+.form-select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:4px;padding:10px 13px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s;appearance:none}
+.form-select:focus{border-color:var(--primary)}
+.form-textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:4px;padding:10px 13px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;resize:vertical;min-height:80px;transition:border-color .15s}
+.form-textarea:focus{border-color:var(--primary)}
+.form-err{font-size:11px;color:var(--error);margin-top:3px}
+.pass-wrap{position:relative}
+.pass-wrap .form-input{padding-right:42px}
+.pass-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px}
+.err-box{background:rgba(176,0,32,0.08);border:1px solid rgba(176,0,32,0.3);border-radius:4px;padding:9px 12px;font-size:12.5px;color:var(--error);margin-top:10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-btn-row{display:flex;gap:8px;margin-top:6px}
+
+/* ── Buttons ── */
+.btn-contained{padding:10px 20px;background:var(--primary);border:none;border-radius:4px;color:var(--on-primary);font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:box-shadow .15s,opacity .15s;letter-spacing:0.5px;box-shadow:var(--elev2)}
+.btn-contained:hover{box-shadow:var(--elev4);opacity:0.92}
+.btn-contained:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none}
+.btn-contained.secondary{background:var(--secondary);color:var(--on-secondary)}
+.btn-contained.error{background:var(--error);color:var(--on-error)}
+.btn-contained.full{width:100%;margin-top:12px}
+.btn-outlined{padding:9px 18px;background:transparent;border:1.5px solid var(--border);border-radius:4px;color:var(--text2);font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;letter-spacing:0.3px}
+.btn-outlined:hover{border-color:var(--primary);color:var(--primary)}
+.btn-text{padding:8px 14px;background:transparent;border:none;border-radius:4px;color:var(--primary);font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:background .15s;letter-spacing:0.3px}
+.btn-text:hover{background:var(--accent-lt)}
+.btn-text.muted{color:var(--muted)}
+.btn-text.muted:hover{background:var(--surface2)}
+.btn-fab{position:fixed;bottom:24px;right:20px;width:56px;height:56px;background:var(--secondary);border:none;border-radius:50%;color:var(--on-secondary);font-size:22px;cursor:pointer;box-shadow:var(--elev8);z-index:100;display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s}
+.btn-fab:hover{transform:scale(1.06);box-shadow:0 8px 20px rgba(3,218,198,0.4)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;font-size:12px;color:var(--text2);font-weight:400}
+
+/* ── User Auth Modal ── */
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface)}
+.auth-tab{flex:1;padding:12px;background:none;border:none;color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;font-family:var(--font-body);letter-spacing:0.5px}
+.auth-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.auth-panel{display:none;padding:18px 20px}
+.auth-panel.active{display:block}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--muted);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.user-avatar-chip{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;background:rgba(255,255,255,0.12);border-radius:20px;cursor:pointer;transition:background .15s;border:none;color:var(--on-primary);font-size:13px;font-weight:400}
+.user-avatar-chip:hover{background:rgba(255,255,255,0.2)}
+.user-avatar{width:28px;height:28px;background:var(--secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--on-secondary);font-weight:700;font-size:12px;flex-shrink:0}
+
+/* ── Admin Panel ── */
+#admin-panel{display:none;position:fixed;inset:0;z-index:400;background:var(--bg);flex-direction:column}
+#admin-panel.open{display:flex}
+.admin-appbar{background:var(--primary-var);padding:0 8px 0 4px;height:56px;display:flex;align-items:center;gap:8px;box-shadow:var(--elev4)}
+.admin-appbar h1{font-size:18px;font-weight:500;color:white;letter-spacing:0.15px;flex:1}
+.admin-stats{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;gap:24px;flex-wrap:wrap}
+.a-stat-num{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--primary)}
+.a-stat-label{font-size:11px;color:var(--muted);letter-spacing:0.3px}
+.admin-search-bar{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);position:relative}
+.admin-content{flex:1;overflow-y:auto;padding:16px}
+.admin-test-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;transition:box-shadow .15s;box-shadow:var(--elev1)}
+.admin-test-row:hover{box-shadow:var(--elev2)}
+.cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.admin-test-info{flex:1}
+.admin-test-name{font-size:13.5px;font-weight:500;color:var(--text)}
+.admin-test-meta{font-size:11.5px;color:var(--muted);margin-top:2px;font-family:var(--font-mono)}
+.admin-cat-header{display:flex;align-items:center;gap:8px;padding:4px 0 8px;margin-top:14px}
+.admin-cat-header:first-child{margin-top:0}
+.admin-cat-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px}
+.admin-cat-line{flex:1;height:1px;background:var(--divider)}
+
+/* ── Suggestion Form ── */
+.suggest-success{display:none;text-align:center;padding:20px 0}
+.suggest-success.show{display:block}
+
+/* ── Toast / Snackbar ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--surface2);border-radius:4px;padding:12px 20px;font-size:13.5px;font-weight:400;color:var(--text);display:flex;align-items:center;gap:10px;z-index:9999;transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);box-shadow:var(--elev8);white-space:nowrap;max-width:90vw;letter-spacing:0.25px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast-action{color:var(--secondary);font-weight:500;cursor:pointer;margin-left:8px;font-size:13px;letter-spacing:0.5px}
+
+/* ── Loading screen ── */
+
+
+
+}
+
+#fb-status-msg{font-size:12.5px;color:var(--muted);text-align:center;max-width:260px}
+.fb-err{background:rgba(176,0,32,0.08);border:1px solid rgba(176,0,32,0.25);border-radius:4px;padding:12px 16px;font-size:12.5px;color:var(--error);max-width:340px;text-align:center;display:none}
+.fb-err.show{display:block}
+
+
+
+/* ── Footer ── */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:28px 20px 80px}
+.footer-grid{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:28px;flex-wrap:wrap}
+.footer-brand-name{font-size:15px;font-weight:700;color:var(--primary);margin-bottom:4px}
+.footer-brand-sub{font-size:12px;color:var(--muted);line-height:1.5}
+.footer-links{display:flex;flex-direction:column;gap:6px}
+.footer-link{font-size:13px;color:var(--text2);cursor:pointer;background:none;border:none;text-align:left;padding:0;transition:color .15s;font-family:var(--font-body)}
+.footer-link:hover{color:var(--primary)}
+.footer-copy{font-size:11px;color:var(--muted);margin-top:20px;padding-top:16px;border-top:1px solid var(--divider);text-align:center;grid-column:1/-1}
+
+/* ── Ads ── */
+.ad-slot{width:100%;display:flex;flex-direction:column;align-items:center}
+.ad-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:0.5}
+.ad-inner{width:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2);border:1px dashed var(--border);border-radius:4px;overflow:hidden;position:relative}
+.ad-placeholder{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:var(--muted);font-size:11px;pointer-events:none;opacity:0.4}
+.ad-leaderboard .ad-inner{height:90px;max-width:728px}
+.ad-leaderboard .ad-placeholder{height:90px}
+.ad-banner .ad-inner{height:60px;max-width:100%}
+.ad-banner .ad-placeholder{height:60px}
+.ad-rectangle .ad-inner{height:250px;max-width:336px}
+.ad-rectangle .ad-placeholder{height:250px}
+.ad-wrap-top{padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.ad-wrap-mid{padding:12px 16px}
+.ad-wrap-pre-footer{padding:20px 16px;border-top:1px solid var(--border)}
+
+@media(max-width:600px){
+  .hero{padding:32px 16px 24px}
+  .stats-row{gap:24px}
+  .test-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .drawer{width:260px}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── Firebase Loading ─── -->
+
+
+<!-- ─── Nav Drawer ─── -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<nav class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-header-logo">🧬</div>
+    <div class="drawer-header-title">MedLab Reference</div>
+    <div class="drawer-header-sub">Clinical Reference Database</div>
+    <div class="drawer-user" id="drawerUser" style="display:none">
+      <div class="drawer-user-avatar" id="drawerUserAvatar">U</div>
+      <div id="drawerUserName" style="font-size:12px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">User</div>
+    </div>
+  </div>
+  <div class="drawer-nav">
+    <div class="drawer-section-title">Navigation</div>
+    <button class="drawer-item active" onclick="closeDrawer();scrollToTop()">
+      <span class="drawer-item-icon">🏠</span> Home
+    </button>
+    <button class="drawer-item" onclick="closeDrawer();document.getElementById('searchInput').focus()">
+      <span class="drawer-item-icon">🔍</span> Search Tests
+    </button>
+    <button class="drawer-item" onclick="closeDrawer();openSuggest()">
+      <span class="drawer-item-icon">💡</span> Suggest a Test
+    </button>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-title">Account</div>
+    <button class="drawer-item" id="drawerLoginBtn" onclick="closeDrawer();openUserAuth()">
+      <span class="drawer-item-icon">👤</span> Sign In / Sign Up
+    </button>
+    <button class="drawer-item" id="drawerMyRanges" style="display:none" onclick="closeDrawer();openMyRanges()">
+      <span class="drawer-item-icon">⭐</span> My Custom Ranges
+    </button>
+    <button class="drawer-item" id="drawerLogoutBtn" style="display:none" onclick="closeDrawer();signOutUser()">
+      <span class="drawer-item-icon">🚪</span> Sign Out
+    </button>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-title">Admin</div>
+    <button class="drawer-item" onclick="closeDrawer();openAdminLogin()">
+      <span class="drawer-item-icon">🔐</span> Admin Login
+    </button>
+  </div>
+  <div class="drawer-footer">© 2025 MedLab Reference</div>
+</nav>
+
+<!-- ─── App Bar ─── -->
+<header class="appbar">
+  <button class="appbar-menu-btn" onclick="openDrawer()" title="Menu">☰</button>
+  <div class="appbar-logo">🧬</div>
+  <div class="appbar-title">MedLab Reference <span id="navTestCount" style="font-size:11px;font-weight:500;opacity:0.55;margin-left:4px"></span></div>
+  <div class="appbar-actions">
+    <span class="fb-badge" id="fb-badge">● Live</span>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <button class="icon-btn" id="userBtn" onclick="openUserAuth()" title="Account">👤</button>
+  </div>
+</header>
+
+<!-- ─── Search ─── -->
+<div class="search-section">
+  <div class="search-box">
+    <span class="search-icon-el">🔍</span>
+    <input id="searchInput" class="search-input" type="text" placeholder="Search tests, categories..." oninput="handleSearch(this)" autocomplete="off">
+    <button class="search-clear-btn" id="searchClear" onclick="clearSearch()">✕</button>
+  </div>
+</div>
+
+<!-- ─── Ad Slot 1 · Top ─── -->
+<div class="ad-wrap-top">
+  <div class="ad-slot ad-leaderboard">
+    <div class="ad-label">Advertisement</div>
+    <div class="ad-inner">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1800215132568729" data-ad-slot="1111111111" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      <div class="ad-placeholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">📢 Google Ad · Leaderboard</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="hero-chip">🩺 Trusted Clinical Data</div>
+  <h1>Medical Test<br><strong>Reference Ranges</strong></h1>
+  <p id="heroSubtitle">Instantly look up normal reference ranges across <span id="heroTestCount">500+</span> medical tests and 30+ categories.</p>
+</section>
+
+<!-- ─── Stats ─── -->
+<div class="stats-row" id="statsRow"></div>
+
+<!-- ─── Ad Slot 2 ─── -->
+<div class="ad-wrap-mid">
+  <div class="ad-slot ad-banner">
+    <div class="ad-label">Advertisement</div>
+    <div class="ad-inner">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1800215132568729" data-ad-slot="2222222222" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      <div class="ad-placeholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">📢 Google Ad · Banner</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─── Specimen Group Filter ─── -->
+<div class="specimen-section">
+  <div class="specimen-label">Filter by Sample Type</div>
+  <div class="specimen-pills" id="specimenPills">
+    <button class="specimen-pill active" data-specimen="All"        onclick="setSpecimen('All')">🔬 All Tests</button>
+    <button class="specimen-pill"        data-specimen="Blood"      onclick="setSpecimen('Blood')">🩸 Blood</button>
+    <button class="specimen-pill"        data-specimen="Urine"      onclick="setSpecimen('Urine')">🧫 Urine</button>
+    <button class="specimen-pill"        data-specimen="Stool"      onclick="setSpecimen('Stool')">💩 Stool</button>
+    <button class="specimen-pill"        data-specimen="CSF"        onclick="setSpecimen('CSF')">🧠 CSF</button>
+    <button class="specimen-pill"        data-specimen="Semen"      onclick="setSpecimen('Semen')">🔍 Semen</button>
+    <button class="specimen-pill"        data-specimen="Joint Fluid" onclick="setSpecimen('Joint Fluid')">🦵 Joint Fluid</button>
+    <button class="specimen-pill"        data-specimen="Body Fluid"  onclick="setSpecimen('Body Fluid')">💧 Body Fluid</button>
+  </div>
+</div>
+
+<!-- ─── Filters ─── -->
+<div class="filter-section" id="filterSection">
+  <div class="filter-label">Filter by Category</div>
+  <div class="filter-pills" id="filterPills"></div>
+</div>
+
+<!-- ─── Main ─── -->
+<main class="main">
+  <div class="results-info" id="resultsInfo"></div>
+  <div id="testList"></div>
+
+  <!-- ─── Ad Slot 3 Mid ─── -->
+  <div class="ad-wrap-mid" style="padding:0 0 16px">
+    <div class="ad-slot ad-leaderboard">
+      <div class="ad-label">Advertisement</div>
+      <div class="ad-inner">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1800215132568729" data-ad-slot="3333333333" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        <div class="ad-placeholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">📢 Google Ad · Mid Content</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ─── Ad Slot 4 Pre-footer ─── -->
+<div class="ad-wrap-pre-footer">
+  <div class="ad-slot ad-rectangle">
+    <div class="ad-label">Advertisement</div>
+    <div class="ad-inner">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1800215132568729" data-ad-slot="4444444444" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      <div class="ad-placeholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">📢 Google Ad · Rectangle</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Footer ─── -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-name">🧬 MedLab Reference</div>
+      <div class="footer-brand-sub">A comprehensive clinical reference database for medical professionals and patients.</div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-contained secondary" onclick="openSuggest()" style="font-size:12px;padding:7px 14px">💡 Suggest a Test</button>
+        <button class="btn-outlined" onclick="openUserAuth()" id="footerAuthBtn" style="font-size:12px;padding:6px 14px">👤 Sign Up Free</button>
+      </div>
+    </div>
+    <div class="footer-links">
+      <div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Quick Links</div>
+      <button class="footer-link" onclick="setFilter('All')">🧬 All Tests</button>
+      <button class="footer-link" onclick="setFilter('Complete Blood Count')">🩸 CBC Panel</button>
+      <button class="footer-link" onclick="setFilter('Lipid Profile')">💊 Lipid Profile</button>
+      <button class="footer-link" onclick="setFilter('Thyroid Function')">🦋 Thyroid Function</button>
+      <button class="footer-link" onclick="setFilter('Blood Sugar')">🍬 Blood Sugar</button>
+      <button class="footer-link" onclick="openAdminLogin()">🔐 Admin</button>
+    </div>
+    <div style="grid-column:1/-1">
+      <!-- Ad Slot 5 Footer -->
+      <div class="ad-slot ad-banner" style="margin-bottom:16px">
+        <div class="ad-label">Advertisement</div>
+        <div class="ad-inner">
+          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1800215132568729" data-ad-slot="5555555555" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          <div class="ad-placeholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">📢 Google Ad · Footer</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copy">© 2025 MedLab Reference — For informational use only. Always consult a healthcare professional.</div>
+  </div>
+</footer>
+
+<!-- Suggest FAB -->
+<button class="btn-fab" onclick="openSuggest()" title="Suggest a Test">💡</button>
+
+<!-- ─── Detail Modal ─── -->
+<div class="overlay" id="detailOverlay" onclick="if(event.target===this)closeDetailModal()">
+  <div class="modal modal-max-md modal-scroll" id="detailModal"></div>
+</div>
+
+<!-- ─── User Auth Modal ─── -->
+<div class="overlay" id="authOverlay" onclick="if(event.target===this)closeAuthModal()">
+  <div class="modal modal-max-sm">
+    <div class="modal-header-primary">
+      <div style="font-size:28px;margin-bottom:8px">👤</div>
+      <div class="modal-title">My Account</div>
+      <div class="modal-sub">Sign in to save your custom reference ranges</div>
+      <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">SIGN IN</button>
+      <button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">SIGN UP</button>
+    </div>
+    <div class="auth-panel active" id="loginPanel">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input id="authEmail" class="form-input" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doUserLogin()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pass-wrap">
+          <input id="authPass" class="form-input" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doUserLogin()">
+          <button class="pass-toggle" onclick="toggleAuthPass()">👁️</button>
+        </div>
+      </div>
+      <div class="err-box" id="loginErr" style="display:none"></div>
+      <button class="btn-contained full" id="loginSubmitBtn" onclick="doUserLogin()">SIGN IN</button>
+    </div>
+    <div class="auth-panel" id="signupPanel">
+      <div class="form-group">
+        <label class="form-label">Display Name</label>
+        <input id="signupName" class="form-input" type="text" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input id="signupEmail" class="form-input" type="email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pass-wrap">
+          <input id="signupPass" class="form-input" type="password" placeholder="Min. 6 characters">
+          <button class="pass-toggle" onclick="toggleSignupPass()">👁️</button>
+        </div>
+      </div>
+      <div class="err-box" id="signupErr" style="display:none"></div>
+      <button class="btn-contained full" id="signupSubmitBtn" onclick="doSignUp()">CREATE ACCOUNT</button>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5">By signing up you can save custom reference ranges that sync across all your devices.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── My Ranges Modal ─── -->
+<div class="overlay" id="myRangesOverlay" onclick="if(event.target===this)document.getElementById('myRangesOverlay').classList.remove('open')">
+  <div class="modal modal-max-md modal-scroll">
+    <div class="modal-header-secondary">
+      <div style="font-size:26px;margin-bottom:8px">⭐</div>
+      <div class="modal-title">My Custom Ranges</div>
+      <div class="modal-sub">Your personalized reference ranges</div>
+      <button class="modal-close" onclick="document.getElementById('myRangesOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="myRangesBody" style="max-height:65vh;overflow-y:auto">
+      <p style="color:var(--muted);font-size:13px">Loading your saved ranges...</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Suggestion Modal ─── -->
+<div class="overlay" id="suggestOverlay" onclick="if(event.target===this)closeSuggest()">
+  <div class="modal modal-max-md">
+    <div class="modal-header-secondary">
+      <div style="font-size:26px;margin-bottom:8px">💡</div>
+      <div class="modal-title">Suggest a Test</div>
+      <div class="modal-sub">Help us grow the database</div>
+      <button class="modal-close" onclick="closeSuggest()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="suggest-success" id="suggestSuccess">
+        <div style="font-size:44px;margin-bottom:12px">✅</div>
+        <div style="font-size:17px;font-weight:500;color:var(--text);margin-bottom:6px">Suggestion Sent!</div>
+        <p style="font-size:13px;color:var(--muted)">Thank you for helping improve MedLab Reference. We'll review your suggestion soon.</p>
+        <button class="btn-text" onclick="closeSuggest()" style="margin-top:12px">CLOSE</button>
+      </div>
+      <div id="suggestForm">
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input id="sgName" class="form-input secondary" type="text" placeholder="Optional">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Email</label>
+          <input id="sgEmail" class="form-input secondary" type="email" placeholder="For follow-up (optional)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Test Name *</label>
+          <input id="sgTestName" class="form-input secondary" type="text" placeholder="e.g. Lipoprotein(a)">
+        </div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Category</label>
+            <input id="sgCategory" class="form-input secondary" type="text" placeholder="e.g. Lipid Profile">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Unit</label>
+            <input id="sgUnit" class="form-input secondary" type="text" placeholder="e.g. mg/dL">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Reference Range</label>
+          <input id="sgRange" class="form-input secondary" type="text" placeholder="e.g. 0 – 30 mg/dL">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Additional Notes</label>
+          <textarea id="sgNotes" class="form-textarea" placeholder="Any extra information about this test..." style="border-color:var(--border)"></textarea>
+        </div>
+        <div class="err-box" id="sgErr" style="display:none"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+          <button class="btn-text muted" onclick="closeSuggest()">CANCEL</button>
+          <button class="btn-contained secondary" id="sgSubmitBtn" onclick="submitSuggestion()">SEND SUGGESTION</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Admin Login Modal ─── -->
+<div class="overlay" id="loginOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal modal-max-sm">
+    <div class="modal-header-dark" style="background:var(--primary-var)">
+      <div style="font-size:26px;margin-bottom:8px;color:white">🔐</div>
+      <div class="modal-title" style="color:white">Admin Portal</div>
+      <div class="modal-sub" style="color:rgba(255,255,255,0.7)">Firebase Authentication</div>
+      <button class="modal-close" onclick="document.getElementById('loginOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Admin Email</label>
+        <input id="loginUser" class="form-input" type="email" placeholder="admin@example.com" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pass-wrap">
+          <input id="loginPass" class="form-input" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button class="pass-toggle" onclick="togglePass()">👁️</button>
+        </div>
+      </div>
+      <div class="err-box" id="loginErr" style="display:none"></div>
+      <button class="btn-contained full" id="loginBtn" onclick="doLogin()">SIGN IN</button>
+      <div style="background:var(--accent-lt);border-radius:4px;padding:10px 12px;margin-top:12px;font-size:12px;color:var(--text2)">
+        <strong style="color:var(--primary)">🔒 Secured by Firebase Auth</strong><br>
+        Manage credentials in Firebase Console → Authentication
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Admin Panel ─── -->
+<div id="admin-panel">
+  <div class="admin-appbar">
+    <button class="appbar-menu-btn" onclick="closeAdmin()">←</button>
+    <h1>🛡️ Admin Panel</h1>
+    <div style="display:flex;gap:6px">
+      <button class="btn-contained secondary" onclick="openTestForm()" style="font-size:12px;padding:7px 14px">＋ Add Test</button>
+      <button class="btn-contained secondary" onclick="autoSyncNewTests()" style="font-size:12px;padding:7px 14px;background:var(--secondary)">🔄 Sync DB</button>
+      <button class="btn-outlined" onclick="logout()" style="font-size:12px;padding:6px 12px;color:white;border-color:rgba(255,255,255,0.4)">Logout</button>
+    </div>
+  </div>
+  <div class="admin-stats" id="adminStats"></div>
+  <div class="admin-search-bar">
+    <div class="search-box" style="background:var(--surface2)">
+      <span class="search-icon-el" style="color:var(--muted)">🔍</span>
+      <input class="search-input" style="color:var(--text)" type="text" placeholder="Search tests..." oninput="handleAdminSearch(this)">
+    </div>
+  </div>
+  <div class="admin-content" id="adminContent"></div>
+</div>
+
+<!-- ─── Add/Edit Test Form Modal ─── -->
+<div class="overlay" id="formOverlay" onclick="if(event.target===this)closeFormOverlay()">
+  <div class="modal modal-max-lg modal-scroll">
+    <div class="modal-header-primary" id="formModalHeader">
+      <div class="modal-title" id="formTitle">Add New Test</div>
+      <div class="modal-sub" id="formSubtitle">Fill in the details below</div>
+      <button class="modal-close" onclick="closeFormOverlay()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Test Name *</label>
+        <input id="fName" class="form-input" type="text" placeholder="e.g. Hemoglobin (Male)">
+        <div class="form-err" id="errName"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category *</label>
+        <select id="fCategory" class="form-select" onchange="handleCatChange()">
+          <option value="">— Select Category —</option>
+        </select>
+        <div class="form-err" id="errCat"></div>
+      </div>
+      <div class="form-group" id="customCatGroup" style="display:none">
+        <label class="form-label">Custom Category *</label>
+        <input id="fCustomCat" class="form-input" type="text" placeholder="e.g. Coagulation Tests">
+        <div class="form-err" id="errCustomCat"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Low Value *</label>
+          <input id="fLow" class="form-input" type="number" step="any" placeholder="0.0">
+          <div class="form-err" id="errLow"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">High Value *</label>
+          <input id="fHigh" class="form-input" type="number" step="any" placeholder="0.0">
+          <div class="form-err" id="errHigh"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit *</label>
+        <input id="fUnit" class="form-input" type="text" placeholder="e.g. mg/dL">
+        <div class="form-err" id="errUnit"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description *</label>
+        <textarea id="fDesc" class="form-textarea" placeholder="Brief clinical description"></textarea>
+        <div class="form-err" id="errDesc"></div>
+      </div>
+      <div class="form-btn-row">
+        <button class="btn-outlined" onclick="closeFormOverlay()">CANCEL</button>
+        <button class="btn-contained" style="flex:2" onclick="saveTest()">💾 SAVE TEST</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Confirm Delete ─── -->
+<div class="overlay" id="confirmOverlay" onclick="if(event.target===this)closeConfirmModal()">
+  <div class="modal modal-max-xs" style="padding:24px 20px;text-align:center">
+    <div style="font-size:40px;margin-bottom:10px">🗑️</div>
+    <div style="font-size:17px;font-weight:500;color:var(--text);margin-bottom:6px">Delete Test?</div>
+    <p id="confirmMsg" style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5"></p>
+    <div style="display:flex;gap:8px">
+      <button class="btn-outlined" style="flex:1" onclick="closeConfirmModal()">CANCEL</button>
+      <button class="btn-contained error" style="flex:1" onclick="confirmDelete()">DELETE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Toast ─── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Material Design colors for category accents ─────────────────
+
+// ── Test data is loaded from tests-data.js ────────────────────
+
+// ── Test Data (embedded inline — no external file needed) ─────
+/* ============================================================
+   tests-data.js  —  MedLab Reference  |  v4.0
+   321 → 420 tests across 30 categories.
+   Each test has a `specimen` field for the top-bar filter:
+     Blood | Urine | Stool | CSF | Semen | Joint Fluid | Body Fluid
+   ============================================================ */
+
+window.DATA_VERSION = 4;
+
+window.CAT_META = {
+  'Complete Blood Count':         {accent:'#E53935',icon:'🩸'},
+  'Liver Function':               {accent:'#F57C00',icon:'🫀'},
+  'Kidney Function':              {accent:'#2E7D32',icon:'🫘'},
+  'Blood Sugar':                  {accent:'#F9A825',icon:'🍬'},
+  'Lipid Profile':                {accent:'#C62828',icon:'💊'},
+  'Thyroid Function':             {accent:'#6A1B9A',icon:'🦋'},
+  'Electrolytes':                 {accent:'#00838F',icon:'⚡'},
+  'Iron Studies':                 {accent:'#BF360C',icon:'🔬'},
+  'Vitamins & Minerals':          {accent:'#558B2F',icon:'🌿'},
+  'Coagulation':                  {accent:'#AD1457',icon:'🩹'},
+  'Cardiac Markers':              {accent:'#B71C1C',icon:'❤️'},
+  'Hormones':                     {accent:'#6A1B9A',icon:'⚗️'},
+  'Pancreatic Function':          {accent:'#33691E',icon:'🫁'},
+  'Autoimmune & Inflammation':    {accent:'#00695C',icon:'🛡️'},
+  'Urinalysis':                   {accent:'#1565C0',icon:'🧫'},
+  'Tumor Markers':                {accent:'#C62828',icon:'🔭'},
+  'Infectious Disease':           {accent:'#1B5E20',icon:'🦠'},
+  'Arterial Blood Gas':           {accent:'#0277BD',icon:'💨'},
+  'Proteins & Immunoglobulins':   {accent:'#E65100',icon:'🧬'},
+  'Bone Markers':                 {accent:'#4E342E',icon:'🦴'},
+  'Nutritional Markers':          {accent:'#827717',icon:'🥗'},
+  'Allergy & Sensitivity':        {accent:'#4527A0',icon:'🤧'},
+  'Stool & GI Tests':             {accent:'#6D4C41',icon:'💩'},
+  'Semen Analysis':               {accent:'#37474F',icon:'🔍'},
+  'Pediatric Reference':          {accent:'#0288D1',icon:'👶'},
+  'Drug Monitoring':              {accent:'#455A64',icon:'💉'},
+  'Toxicology':                   {accent:'#263238',icon:'☠️'},
+  'CSF Analysis':                 {accent:'#4A148C',icon:'🧠'},
+  'Synovial Fluid':               {accent:'#1A237E',icon:'🦵'},
+  'Pleural & Peritoneal Fluid':   {accent:'#01579B',icon:'💧'},
+};
+
+window.INITIAL_TESTS = [
+
+  // ─── BLOOD TESTS ─────────────────────────────────────────────
+
+  // Complete Blood Count (18)
+  {id:1,   specimen:'Blood', category:'Complete Blood Count', name:'Hemoglobin (Male)',         unit:'g/dL',           low:13.5, high:17.5, description:'Oxygen-carrying protein in red blood cells'},
+  {id:2,   specimen:'Blood', category:'Complete Blood Count', name:'Hemoglobin (Female)',       unit:'g/dL',           low:12.0, high:15.5, description:'Oxygen-carrying protein in red blood cells'},
+  {id:3,   specimen:'Blood', category:'Complete Blood Count', name:'WBC Count',                 unit:'×10³/μL',        low:4.5,  high:11.0, description:'White blood cells that fight infection'},
+  {id:4,   specimen:'Blood', category:'Complete Blood Count', name:'Platelet Count',            unit:'×10³/μL',        low:150,  high:400,  description:'Tiny cells that help blood clot'},
+  {id:5,   specimen:'Blood', category:'Complete Blood Count', name:'RBC Count (Male)',          unit:'×10⁶/μL',        low:4.5,  high:5.9,  description:'Red blood cells that carry oxygen'},
+  {id:6,   specimen:'Blood', category:'Complete Blood Count', name:'RBC Count (Female)',        unit:'×10⁶/μL',        low:4.0,  high:5.2,  description:'Red blood cells that carry oxygen'},
+  {id:7,   specimen:'Blood', category:'Complete Blood Count', name:'MCV',                       unit:'fL',             low:80,   high:100,  description:'Mean corpuscular volume — size of RBCs'},
+  {id:8,   specimen:'Blood', category:'Complete Blood Count', name:'MCH',                       unit:'pg',             low:27,   high:33,   description:'Mean corpuscular hemoglobin per RBC'},
+  {id:9,   specimen:'Blood', category:'Complete Blood Count', name:'MCHC',                      unit:'g/dL',           low:33,   high:36,   description:'Mean corpuscular hemoglobin concentration'},
+  {id:10,  specimen:'Blood', category:'Complete Blood Count', name:'RDW',                       unit:'%',              low:11.5, high:14.5, description:'Red cell distribution width — RBC size variation'},
+  {id:11,  specimen:'Blood', category:'Complete Blood Count', name:'Neutrophils',               unit:'%',              low:50,   high:70,   description:'Most common WBC; first responder to infection'},
+  {id:12,  specimen:'Blood', category:'Complete Blood Count', name:'Lymphocytes',               unit:'%',              low:20,   high:40,   description:'White cells involved in immune response'},
+  {id:13,  specimen:'Blood', category:'Complete Blood Count', name:'Monocytes',                 unit:'%',              low:2,    high:8,    description:'White cells that engulf and destroy pathogens'},
+  {id:14,  specimen:'Blood', category:'Complete Blood Count', name:'Eosinophils',               unit:'%',              low:1,    high:4,    description:'White cells active in allergies and parasites'},
+  {id:15,  specimen:'Blood', category:'Complete Blood Count', name:'Basophils',                 unit:'%',              low:0,    high:1,    description:'Rare white cells involved in inflammation'},
+  {id:16,  specimen:'Blood', category:'Complete Blood Count', name:'Hematocrit (Male)',         unit:'%',              low:41,   high:53,   description:'Percentage of blood volume occupied by RBCs'},
+  {id:17,  specimen:'Blood', category:'Complete Blood Count', name:'Hematocrit (Female)',       unit:'%',              low:36,   high:46,   description:'Percentage of blood volume occupied by RBCs'},
+  {id:18,  specimen:'Blood', category:'Complete Blood Count', name:'MPV',                       unit:'fL',             low:7.5,  high:12.5, description:'Mean platelet volume — platelet activity indicator'},
+
+  // Liver Function (16)
+  {id:19,  specimen:'Blood', category:'Liver Function', name:'ALT (SGPT)',                      unit:'U/L',   low:7,    high:56,   description:'Alanine aminotransferase — liver-specific enzyme'},
+  {id:20,  specimen:'Blood', category:'Liver Function', name:'AST (SGOT)',                      unit:'U/L',   low:10,   high:40,   description:'Aspartate aminotransferase — liver/heart enzyme'},
+  {id:21,  specimen:'Blood', category:'Liver Function', name:'ALP',                             unit:'U/L',   low:44,   high:147,  description:'Alkaline phosphatase — liver and bone enzyme'},
+  {id:22,  specimen:'Blood', category:'Liver Function', name:'GGT',                             unit:'U/L',   low:8,    high:61,   description:'Gamma-glutamyl transferase — sensitive to alcohol'},
+  {id:23,  specimen:'Blood', category:'Liver Function', name:'Total Bilirubin',                 unit:'mg/dL', low:0.2,  high:1.2,  description:'Waste product from red blood cell breakdown'},
+  {id:24,  specimen:'Blood', category:'Liver Function', name:'Direct Bilirubin',                unit:'mg/dL', low:0.0,  high:0.3,  description:'Conjugated bilirubin processed by liver'},
+  {id:25,  specimen:'Blood', category:'Liver Function', name:'Indirect Bilirubin',              unit:'mg/dL', low:0.2,  high:0.9,  description:'Unconjugated bilirubin before liver processing'},
+  {id:26,  specimen:'Blood', category:'Liver Function', name:'Albumin',                         unit:'g/dL',  low:3.5,  high:5.0,  description:'Major blood protein synthesized by liver'},
+  {id:27,  specimen:'Blood', category:'Liver Function', name:'Total Protein',                   unit:'g/dL',  low:6.3,  high:8.2,  description:'Combined albumin and globulin in blood'},
+  {id:28,  specimen:'Blood', category:'Liver Function', name:'Globulin',                        unit:'g/dL',  low:2.0,  high:3.5,  description:'Group of proteins including antibodies'},
+  {id:29,  specimen:'Blood', category:'Liver Function', name:'A/G Ratio',                       unit:'ratio', low:1.2,  high:2.2,  description:'Albumin to globulin ratio — liver and immune indicator'},
+  {id:30,  specimen:'Blood', category:'Liver Function', name:'PT (Prothrombin Time)',           unit:'sec',   low:11,   high:13.5, description:'Time for blood to clot; reflects liver synthesis'},
+  {id:31,  specimen:'Blood', category:'Liver Function', name:'INR',                             unit:'ratio', low:0.8,  high:1.1,  description:'Standardized prothrombin time ratio'},
+  {id:32,  specimen:'Blood', category:'Liver Function', name:'LDH',                             unit:'U/L',   low:140,  high:280,  description:'Lactate dehydrogenase — released with tissue damage'},
+  {id:33,  specimen:'Blood', category:'Liver Function', name:'5-Nucleotidase',                  unit:'U/L',   low:2,    high:17,   description:'Enzyme elevated in liver and biliary disease'},
+  {id:34,  specimen:'Blood', category:'Liver Function', name:'Cholinesterase (Serum)',          unit:'U/L',   low:5320, high:12920,description:'Liver synthetic marker; low in liver failure/poisoning'},
+
+  // Kidney Function (13)
+  {id:35,  specimen:'Blood', category:'Kidney Function', name:'Creatinine (Male)',              unit:'mg/dL',          low:0.74, high:1.35, description:'Waste filtered by kidneys; elevated in renal disease'},
+  {id:36,  specimen:'Blood', category:'Kidney Function', name:'Creatinine (Female)',            unit:'mg/dL',          low:0.59, high:1.04, description:'Waste filtered by kidneys; elevated in renal disease'},
+  {id:37,  specimen:'Blood', category:'Kidney Function', name:'BUN',                            unit:'mg/dL',          low:7,    high:20,   description:'Blood urea nitrogen from protein metabolism'},
+  {id:38,  specimen:'Blood', category:'Kidney Function', name:'BUN/Creatinine Ratio',          unit:'ratio',          low:10,   high:20,   description:'Used to assess kidney function and hydration'},
+  {id:39,  specimen:'Blood', category:'Kidney Function', name:'eGFR',                           unit:'mL/min/1.73m²',  low:60,   high:120,  description:'Estimated glomerular filtration rate'},
+  {id:40,  specimen:'Blood', category:'Kidney Function', name:'Uric Acid (Male)',               unit:'mg/dL',          low:3.4,  high:7.0,  description:'End product of purine metabolism; elevated in gout'},
+  {id:41,  specimen:'Blood', category:'Kidney Function', name:'Uric Acid (Female)',             unit:'mg/dL',          low:2.4,  high:6.0,  description:'End product of purine metabolism'},
+  {id:42,  specimen:'Blood', category:'Kidney Function', name:'Cystatin C',                     unit:'mg/L',           low:0.5,  high:1.0,  description:'More accurate kidney marker than creatinine'},
+  {id:43,  specimen:'Blood', category:'Kidney Function', name:'Creatinine Clearance',          unit:'mL/min',         low:88,   high:128,  description:'Rate kidneys clear creatinine from blood'},
+  {id:44,  specimen:'Blood', category:'Kidney Function', name:'Osmolality (Serum)',             unit:'mOsm/kg',        low:275,  high:295,  description:'Concentration of dissolved particles in blood'},
+  {id:45,  specimen:'Blood', category:'Kidney Function', name:'Beta-2 Microglobulin (Blood)',  unit:'mg/L',           low:0.8,  high:2.4,  description:'Tubular function marker elevated in kidney disease'},
+  {id:46,  specimen:'Blood', category:'Kidney Function', name:'Symmetric Dimethylarginine',    unit:'ng/mL',          low:0,    high:0.5,  description:'SDMA — early GFR decline marker'},
+  {id:47,  specimen:'Blood', category:'Kidney Function', name:'Phosphorus (Kidney)',            unit:'mg/dL',          low:2.5,  high:4.5,  description:'Elevated in chronic kidney disease'},
+
+  // Blood Sugar (10)
+  {id:48,  specimen:'Blood', category:'Blood Sugar', name:'Fasting Blood Glucose',              unit:'mg/dL', low:70,   high:100,  description:'Blood glucose after minimum 8 hours fasting'},
+  {id:49,  specimen:'Blood', category:'Blood Sugar', name:'Random Blood Glucose',               unit:'mg/dL', low:70,   high:140,  description:'Blood glucose measured at any time of day'},
+  {id:50,  specimen:'Blood', category:'Blood Sugar', name:'Post-Prandial Glucose (2h)',         unit:'mg/dL', low:70,   high:140,  description:'Blood glucose 2 hours after a meal'},
+  {id:51,  specimen:'Blood', category:'Blood Sugar', name:'HbA1c',                              unit:'%',     low:4.0,  high:5.6,  description:'3-month average blood sugar — key diabetes marker'},
+  {id:52,  specimen:'Blood', category:'Blood Sugar', name:'Fructosamine',                       unit:'μmol/L',low:200,  high:285,  description:'2–3 week average blood glucose level'},
+  {id:53,  specimen:'Blood', category:'Blood Sugar', name:'Insulin (Fasting)',                  unit:'μIU/mL',low:2.6,  high:24.9, description:'Hormone that regulates blood glucose'},
+  {id:54,  specimen:'Blood', category:'Blood Sugar', name:'C-Peptide',                          unit:'ng/mL', low:0.8,  high:3.9,  description:'Marker of insulin production by pancreatic beta cells'},
+  {id:55,  specimen:'Blood', category:'Blood Sugar', name:'HOMA-IR Index',                      unit:'index', low:0,    high:2.5,  description:'Insulin resistance score'},
+  {id:56,  specimen:'Blood', category:'Blood Sugar', name:'Glucagon',                           unit:'pg/mL', low:50,   high:100,  description:'Pancreatic hormone that raises blood glucose'},
+  {id:57,  specimen:'Blood', category:'Blood Sugar', name:'1,5-Anhydroglucitol',               unit:'μg/mL', low:10,   high:40,   description:'Short-term glycemic control marker (1–2 week average)'},
+
+  // Lipid Profile (13)
+  {id:58,  specimen:'Blood', category:'Lipid Profile', name:'Total Cholesterol',                unit:'mg/dL', low:0,    high:200,  description:'Total cholesterol in blood — desirable below 200'},
+  {id:59,  specimen:'Blood', category:'Lipid Profile', name:'LDL Cholesterol',                  unit:'mg/dL', low:0,    high:100,  description:'Bad cholesterol; major heart disease risk factor'},
+  {id:60,  specimen:'Blood', category:'Lipid Profile', name:'HDL Cholesterol (Male)',           unit:'mg/dL', low:40,   high:60,   description:'Good cholesterol; higher levels are protective'},
+  {id:61,  specimen:'Blood', category:'Lipid Profile', name:'HDL Cholesterol (Female)',         unit:'mg/dL', low:50,   high:60,   description:'Good cholesterol; higher levels are protective'},
+  {id:62,  specimen:'Blood', category:'Lipid Profile', name:'Triglycerides',                    unit:'mg/dL', low:0,    high:150,  description:'Type of fat in blood; elevated with poor diet'},
+  {id:63,  specimen:'Blood', category:'Lipid Profile', name:'VLDL Cholesterol',                 unit:'mg/dL', low:5,    high:40,   description:'Very low-density lipoprotein; precursor to LDL'},
+  {id:64,  specimen:'Blood', category:'Lipid Profile', name:'Non-HDL Cholesterol',              unit:'mg/dL', low:0,    high:130,  description:'Total cholesterol minus HDL; cardiovascular risk'},
+  {id:65,  specimen:'Blood', category:'Lipid Profile', name:'Cholesterol/HDL Ratio',           unit:'ratio', low:0,    high:5.0,  description:'Cardiac risk ratio; lower is better'},
+  {id:66,  specimen:'Blood', category:'Lipid Profile', name:'Apo A-I',                          unit:'mg/dL', low:110,  high:205,  description:'Main protein of HDL particles'},
+  {id:67,  specimen:'Blood', category:'Lipid Profile', name:'Apo B',                            unit:'mg/dL', low:50,   high:110,  description:'Main protein of LDL/VLDL; cardiovascular risk'},
+  {id:68,  specimen:'Blood', category:'Lipid Profile', name:'Lipoprotein(a)',                   unit:'mg/dL', low:0,    high:30,   description:'Genetic cardiovascular risk factor'},
+  {id:69,  specimen:'Blood', category:'Lipid Profile', name:'Small Dense LDL',                  unit:'mg/dL', low:0,    high:35,   description:'Most atherogenic LDL subtype; CV risk marker'},
+  {id:70,  specimen:'Blood', category:'Lipid Profile', name:'Remnant Cholesterol',              unit:'mg/dL', low:0,    high:30,   description:'Triglyceride-rich lipoprotein remnants; CV risk'},
+
+  // Thyroid (11)
+  {id:71,  specimen:'Blood', category:'Thyroid Function', name:'TSH',                           unit:'mIU/L', low:0.4,  high:4.0,  description:'Thyroid stimulating hormone — master thyroid regulator'},
+  {id:72,  specimen:'Blood', category:'Thyroid Function', name:'Free T3',                       unit:'pg/mL', low:2.3,  high:4.1,  description:'Active thyroid hormone affecting metabolism'},
+  {id:73,  specimen:'Blood', category:'Thyroid Function', name:'Free T4',                       unit:'ng/dL', low:0.8,  high:1.8,  description:'Prohormone converted to T3 in tissues'},
+  {id:74,  specimen:'Blood', category:'Thyroid Function', name:'Total T3',                      unit:'ng/dL', low:80,   high:200,  description:'Total triiodothyronine in blood'},
+  {id:75,  specimen:'Blood', category:'Thyroid Function', name:'Total T4',                      unit:'μg/dL', low:5.0,  high:12.0, description:'Total thyroxine in blood'},
+  {id:76,  specimen:'Blood', category:'Thyroid Function', name:'Anti-TPO Antibody',             unit:'IU/mL', low:0,    high:34,   description:'Antibody against thyroid peroxidase — Hashimoto marker'},
+  {id:77,  specimen:'Blood', category:'Thyroid Function', name:'Anti-Thyroglobulin Ab',         unit:'IU/mL', low:0,    high:115,  description:'Antibody against thyroglobulin — autoimmune thyroid'},
+  {id:78,  specimen:'Blood', category:'Thyroid Function', name:'Thyroglobulin',                 unit:'ng/mL', low:1.4,  high:78,   description:'Protein made by thyroid; monitors thyroid cancer'},
+  {id:79,  specimen:'Blood', category:'Thyroid Function', name:'Reverse T3',                    unit:'ng/dL', low:10,   high:24,   description:'Inactive form of T3; elevated in chronic illness'},
+  {id:80,  specimen:'Blood', category:'Thyroid Function', name:'TRAb (TSH Receptor Ab)',        unit:'IU/L',  low:0,    high:1.75, description:'Antibody stimulating thyroid; elevated in Graves disease'},
+  {id:81,  specimen:'Blood', category:'Thyroid Function', name:'Thyroid Peroxidase Activity',   unit:'IU/mL', low:0,    high:35,   description:'TPO enzyme level; reduced in autoimmune thyroid disease'},
+
+  // Electrolytes (10)
+  {id:82,  specimen:'Blood', category:'Electrolytes', name:'Sodium',                            unit:'mEq/L', low:136,  high:145,  description:'Primary extracellular cation; regulates fluid balance'},
+  {id:83,  specimen:'Blood', category:'Electrolytes', name:'Potassium',                         unit:'mEq/L', low:3.5,  high:5.0,  description:'Critical for heart rhythm and muscle contraction'},
+  {id:84,  specimen:'Blood', category:'Electrolytes', name:'Chloride',                          unit:'mEq/L', low:98,   high:107,  description:'Major anion; works with sodium for fluid balance'},
+  {id:85,  specimen:'Blood', category:'Electrolytes', name:'Bicarbonate (CO2)',                 unit:'mEq/L', low:22,   high:29,   description:'Regulates blood pH and acid-base balance'},
+  {id:86,  specimen:'Blood', category:'Electrolytes', name:'Calcium (Total)',                   unit:'mg/dL', low:8.6,  high:10.3, description:'Essential for bone, muscle, and nerve function'},
+  {id:87,  specimen:'Blood', category:'Electrolytes', name:'Calcium (Ionized)',                 unit:'mmol/L',low:1.12, high:1.32, description:'Biologically active free calcium in blood'},
+  {id:88,  specimen:'Blood', category:'Electrolytes', name:'Magnesium',                         unit:'mg/dL', low:1.7,  high:2.2,  description:'Cofactor for 300+ enzymes; supports muscles and nerves'},
+  {id:89,  specimen:'Blood', category:'Electrolytes', name:'Phosphorus',                        unit:'mg/dL', low:2.5,  high:4.5,  description:'Works with calcium for bone health and energy'},
+  {id:90,  specimen:'Blood', category:'Electrolytes', name:'Anion Gap',                         unit:'mEq/L', low:8,    high:16,   description:'Detects acid-base disorders in blood'},
+  {id:91,  specimen:'Blood', category:'Electrolytes', name:'Osmolality (Calculated)',           unit:'mOsm/kg',low:275, high:295,  description:'Calculated serum osmolality from Na, glucose, BUN'},
+
+  // Iron Studies (10)
+  {id:92,  specimen:'Blood', category:'Iron Studies', name:'Serum Iron (Male)',                 unit:'μg/dL', low:65,   high:175,  description:'Iron circulating in blood bound to transferrin'},
+  {id:93,  specimen:'Blood', category:'Iron Studies', name:'Serum Iron (Female)',               unit:'μg/dL', low:50,   high:170,  description:'Iron circulating in blood bound to transferrin'},
+  {id:94,  specimen:'Blood', category:'Iron Studies', name:'Ferritin (Male)',                   unit:'ng/mL', low:24,   high:336,  description:'Primary iron storage protein; best iron deficiency marker'},
+  {id:95,  specimen:'Blood', category:'Iron Studies', name:'Ferritin (Female)',                 unit:'ng/mL', low:11,   high:307,  description:'Primary iron storage protein'},
+  {id:96,  specimen:'Blood', category:'Iron Studies', name:'TIBC',                              unit:'μg/dL', low:250,  high:370,  description:'Total iron-binding capacity of transferrin'},
+  {id:97,  specimen:'Blood', category:'Iron Studies', name:'Transferrin Saturation',            unit:'%',     low:20,   high:50,   description:'Percentage of transferrin sites occupied by iron'},
+  {id:98,  specimen:'Blood', category:'Iron Studies', name:'Transferrin',                       unit:'mg/dL', low:200,  high:360,  description:'Main iron transport protein in blood'},
+  {id:99,  specimen:'Blood', category:'Iron Studies', name:'Soluble Transferrin Receptor',     unit:'mg/L',  low:0.8,  high:1.8,  description:'Sensitive marker for iron deficiency at tissue level'},
+  {id:100, specimen:'Blood', category:'Iron Studies', name:'Hepcidin',                          unit:'ng/mL', low:20,   high:280,  description:'Master regulator of iron absorption and distribution'},
+  {id:101, specimen:'Blood', category:'Iron Studies', name:'Zinc Protoporphyrin',               unit:'μg/dL', low:0,    high:35,   description:'Elevated when iron supply is inadequate for heme synthesis'},
+
+  // Vitamins & Minerals (16)
+  {id:102, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin D (25-OH)',          unit:'ng/mL', low:20,   high:50,   description:'Bone health, immune regulation and calcium absorption'},
+  {id:103, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin B12',                unit:'pg/mL', low:200,  high:900,  description:'Essential for nerve function and DNA synthesis'},
+  {id:104, specimen:'Blood', category:'Vitamins & Minerals', name:'Folate (Serum)',             unit:'ng/mL', low:2.7,  high:17.0, description:'B-vitamin critical for DNA synthesis and cell division'},
+  {id:105, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin A (Retinol)',        unit:'μg/dL', low:30,   high:65,   description:'Essential for vision, immune function and skin health'},
+  {id:106, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin C (Ascorbic Acid)', unit:'mg/dL', low:0.4,  high:2.0,  description:'Antioxidant; essential for collagen synthesis'},
+  {id:107, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin E (Alpha-Tocoph.)', unit:'mg/dL', low:0.5,  high:1.8,  description:'Fat-soluble antioxidant protecting cell membranes'},
+  {id:108, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin K',                  unit:'ng/mL', low:0.1,  high:2.2,  description:'Essential for blood clotting and bone metabolism'},
+  {id:109, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin B1 (Thiamine)',      unit:'nmol/L',low:70,   high:180,  description:'Needed for energy metabolism and nerve function'},
+  {id:110, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin B6 (Pyridoxine)',    unit:'ng/mL', low:5,    high:50,   description:'Involved in protein metabolism and neurotransmitters'},
+  {id:111, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin B2 (Riboflavin)',    unit:'μg/L',  low:100,  high:300,  description:'Required for energy production and cellular function'},
+  {id:112, specimen:'Blood', category:'Vitamins & Minerals', name:'Niacin (B3)',                unit:'μg/mL', low:0.5,  high:8.45, description:'Supports energy metabolism and DNA repair'},
+  {id:113, specimen:'Blood', category:'Vitamins & Minerals', name:'Zinc',                       unit:'μg/dL', low:60,   high:130,  description:'Essential for immune function and wound healing'},
+  {id:114, specimen:'Blood', category:'Vitamins & Minerals', name:'Copper',                     unit:'μg/dL', low:70,   high:140,  description:'Needed for iron metabolism and enzyme activity'},
+  {id:115, specimen:'Blood', category:'Vitamins & Minerals', name:'Selenium',                   unit:'μg/L',  low:70,   high:150,  description:'Antioxidant mineral supporting thyroid and immunity'},
+  {id:116, specimen:'Blood', category:'Vitamins & Minerals', name:'Manganese',                  unit:'μg/L',  low:4,    high:14,   description:'Cofactor for enzymes; bone formation and metabolism'},
+  {id:117, specimen:'Blood', category:'Vitamins & Minerals', name:'Chromium',                   unit:'μg/L',  low:0.1,  high:2.1,  description:'Enhances insulin action; supports glucose metabolism'},
+
+  // Coagulation (13)
+  {id:118, specimen:'Blood', category:'Coagulation', name:'Prothrombin Time (PT)',              unit:'sec',   low:11,   high:13.5, description:'Time for blood to clot via extrinsic pathway'},
+  {id:119, specimen:'Blood', category:'Coagulation', name:'INR',                                unit:'ratio', low:0.8,  high:1.1,  description:'Standardized PT ratio; monitored on warfarin'},
+  {id:120, specimen:'Blood', category:'Coagulation', name:'aPTT',                               unit:'sec',   low:25,   high:35,   description:'Activated partial thromboplastin time — intrinsic pathway'},
+  {id:121, specimen:'Blood', category:'Coagulation', name:'Thrombin Time',                      unit:'sec',   low:12,   high:16,   description:'Measures fibrin clot formation from fibrinogen'},
+  {id:122, specimen:'Blood', category:'Coagulation', name:'Fibrinogen',                         unit:'mg/dL', low:200,  high:400,  description:'Protein converted to fibrin to form blood clots'},
+  {id:123, specimen:'Blood', category:'Coagulation', name:'D-Dimer',                            unit:'μg/mL', low:0,    high:0.5,  description:'Fibrin degradation product; elevated in clotting disorders'},
+  {id:124, specimen:'Blood', category:'Coagulation', name:'Bleeding Time',                      unit:'min',   low:1,    high:9,    description:'Time for small wound to stop bleeding'},
+  {id:125, specimen:'Blood', category:'Coagulation', name:'Factor VIII Activity',               unit:'%',     low:50,   high:150,  description:'Clotting factor; deficient in Hemophilia A'},
+  {id:126, specimen:'Blood', category:'Coagulation', name:'Factor IX Activity',                 unit:'%',     low:50,   high:150,  description:'Clotting factor; deficient in Hemophilia B'},
+  {id:127, specimen:'Blood', category:'Coagulation', name:'Protein C Activity',                 unit:'%',     low:70,   high:140,  description:'Natural anticoagulant; deficiency causes thrombosis'},
+  {id:128, specimen:'Blood', category:'Coagulation', name:'Protein S Activity',                 unit:'%',     low:60,   high:140,  description:'Cofactor for Protein C anticoagulant function'},
+  {id:129, specimen:'Blood', category:'Coagulation', name:'Antithrombin III',                   unit:'%',     low:80,   high:120,  description:'Natural anticoagulant; inhibits thrombin'},
+  {id:130, specimen:'Blood', category:'Coagulation', name:'Lupus Anticoagulant',                unit:'ratio', low:0,    high:1.2,  description:'Antibody causing paradoxical thrombosis risk'},
+
+  // Cardiac Markers (12)
+  {id:131, specimen:'Blood', category:'Cardiac Markers', name:'Troponin I (cTnI)',              unit:'ng/mL', low:0,    high:0.04, description:'Gold standard marker for myocardial infarction'},
+  {id:132, specimen:'Blood', category:'Cardiac Markers', name:'Troponin T (cTnT)',              unit:'ng/mL', low:0,    high:0.01, description:'Highly sensitive cardiac injury marker'},
+  {id:133, specimen:'Blood', category:'Cardiac Markers', name:'CK-MB',                          unit:'ng/mL', low:0,    high:5,    description:'Creatine kinase MB — specific to heart muscle damage'},
+  {id:134, specimen:'Blood', category:'Cardiac Markers', name:'Total CK',                       unit:'U/L',   low:22,   high:198,  description:'Creatine kinase — elevated with muscle or heart damage'},
+  {id:135, specimen:'Blood', category:'Cardiac Markers', name:'BNP',                            unit:'pg/mL', low:0,    high:100,  description:'B-type natriuretic peptide — heart failure marker'},
+  {id:136, specimen:'Blood', category:'Cardiac Markers', name:'NT-proBNP',                      unit:'pg/mL', low:0,    high:125,  description:'Precursor of BNP; heart failure and cardiac stress'},
+  {id:137, specimen:'Blood', category:'Cardiac Markers', name:'Myoglobin',                      unit:'ng/mL', low:0,    high:90,   description:'Oxygen-binding protein; early marker of muscle injury'},
+  {id:138, specimen:'Blood', category:'Cardiac Markers', name:'hs-CRP (Cardiac)',               unit:'mg/L',  low:0,    high:1.0,  description:'High-sensitivity CRP for cardiovascular risk'},
+  {id:139, specimen:'Blood', category:'Cardiac Markers', name:'Homocysteine',                   unit:'μmol/L',low:5,    high:15,   description:'Elevated levels are cardiovascular risk factor'},
+  {id:140, specimen:'Blood', category:'Cardiac Markers', name:'Lipoprotein-Associated PLA2',   unit:'ng/mL', low:0,    high:200,  description:'Enzyme linked to vascular inflammation and plaque'},
+  {id:141, specimen:'Blood', category:'Cardiac Markers', name:'Heart-Type Fatty Acid BP',       unit:'ng/mL', low:0,    high:6.2,  description:'H-FABP — very early cardiac injury marker'},
+  {id:142, specimen:'Blood', category:'Cardiac Markers', name:'Copeptin',                       unit:'pmol/L',low:0,    high:10,   description:'Surrogate marker for ADH; early MI rule-out marker'},
+
+  // Hormones (30)
+  {id:143, specimen:'Blood', category:'Hormones', name:'Cortisol (AM)',                         unit:'μg/dL', low:6,    high:23,   description:'Stress hormone from adrenal glands; measured in morning'},
+  {id:144, specimen:'Blood', category:'Hormones', name:'Cortisol (PM)',                         unit:'μg/dL', low:2,    high:11,   description:'Stress hormone; lower in afternoon (diurnal variation)'},
+  {id:145, specimen:'Blood', category:'Hormones', name:'ACTH',                                  unit:'pg/mL', low:7,    high:63,   description:'Adrenocorticotropic hormone — controls cortisol'},
+  {id:146, specimen:'Blood', category:'Hormones', name:'FSH (Male)',                            unit:'mIU/mL',low:1.5,  high:12.4, description:'Follicle-stimulating hormone — controls sperm production'},
+  {id:147, specimen:'Blood', category:'Hormones', name:'FSH (Female Follicular)',               unit:'mIU/mL',low:3.5,  high:12.5, description:'FSH in follicular phase of menstrual cycle'},
+  {id:148, specimen:'Blood', category:'Hormones', name:'FSH (Female Menopausal)',               unit:'mIU/mL',low:25.8, high:134,  description:'FSH elevated in menopause'},
+  {id:149, specimen:'Blood', category:'Hormones', name:'LH (Male)',                             unit:'mIU/mL',low:1.7,  high:8.6,  description:'Luteinizing hormone — regulates testosterone'},
+  {id:150, specimen:'Blood', category:'Hormones', name:'LH (Female Follicular)',                unit:'mIU/mL',low:2.4,  high:12.6, description:'Luteinizing hormone in follicular phase'},
+  {id:151, specimen:'Blood', category:'Hormones', name:'Testosterone (Male Total)',             unit:'ng/dL', low:300,  high:1000, description:'Primary male sex hormone'},
+  {id:152, specimen:'Blood', category:'Hormones', name:'Testosterone (Female Total)',           unit:'ng/dL', low:15,   high:70,   description:'Testosterone in females — libido and bone health'},
+  {id:153, specimen:'Blood', category:'Hormones', name:'Free Testosterone (Male)',              unit:'pg/mL', low:9,    high:30,   description:'Biologically active unbound testosterone'},
+  {id:154, specimen:'Blood', category:'Hormones', name:'Estradiol (E2) Female',                unit:'pg/mL', low:30,   high:400,  description:'Primary female sex hormone — varies with cycle'},
+  {id:155, specimen:'Blood', category:'Hormones', name:'Estradiol (E2) Male',                  unit:'pg/mL', low:10,   high:40,   description:'Estradiol in males; important for bone and libido'},
+  {id:156, specimen:'Blood', category:'Hormones', name:'Progesterone (Follicular)',             unit:'ng/mL', low:0.1,  high:0.9,  description:'Female hormone; rises after ovulation'},
+  {id:157, specimen:'Blood', category:'Hormones', name:'Progesterone (Luteal)',                 unit:'ng/mL', low:1.7,  high:27,   description:'Female hormone in luteal phase; elevated in pregnancy'},
+  {id:158, specimen:'Blood', category:'Hormones', name:'Prolactin (Male)',                      unit:'ng/mL', low:2,    high:18,   description:'Hormone from pituitary; elevated causes infertility'},
+  {id:159, specimen:'Blood', category:'Hormones', name:'Prolactin (Female)',                    unit:'ng/mL', low:2,    high:29,   description:'Stimulates breast milk production'},
+  {id:160, specimen:'Blood', category:'Hormones', name:'DHEA-Sulfate (Male)',                   unit:'μg/dL', low:80,   high:560,  description:'Adrenal androgen precursor hormone'},
+  {id:161, specimen:'Blood', category:'Hormones', name:'DHEA-Sulfate (Female)',                 unit:'μg/dL', low:35,   high:430,  description:'Adrenal androgen precursor hormone'},
+  {id:162, specimen:'Blood', category:'Hormones', name:'SHBG',                                  unit:'nmol/L',low:10,   high:57,   description:'Sex hormone-binding globulin — transports sex hormones'},
+  {id:163, specimen:'Blood', category:'Hormones', name:'IGF-1',                                 unit:'ng/mL', low:88,   high:246,  description:'Insulin-like growth factor 1 — marker of growth hormone'},
+  {id:164, specimen:'Blood', category:'Hormones', name:'Growth Hormone (Fasting)',              unit:'ng/mL', low:0,    high:3,    description:'Pituitary hormone controlling growth and metabolism'},
+  {id:165, specimen:'Blood', category:'Hormones', name:'PTH (Parathyroid Hormone)',             unit:'pg/mL', low:15,   high:65,   description:'Regulates calcium and phosphorus balance'},
+  {id:166, specimen:'Blood', category:'Hormones', name:'Aldosterone (Upright)',                 unit:'ng/dL', low:7,    high:30,   description:'Adrenal hormone regulating sodium and blood pressure'},
+  {id:167, specimen:'Blood', category:'Hormones', name:'Renin Activity',                        unit:'ng/mL/h',low:0.2, high:1.6,  description:'Enzyme controlling blood pressure via aldosterone'},
+  {id:168, specimen:'Blood', category:'Hormones', name:'hCG (Beta-hCG)',                        unit:'mIU/mL',low:0,    high:5,    description:'Pregnancy hormone; elevated in early pregnancy'},
+  {id:169, specimen:'Blood', category:'Hormones', name:'Anti-Mullerian Hormone',               unit:'ng/mL', low:1.0,  high:3.5,  description:'AMH — ovarian reserve marker; used in fertility workup'},
+  {id:170, specimen:'Blood', category:'Hormones', name:'Inhibin B (Male)',                      unit:'pg/mL', low:80,   high:400,  description:'Marker of Sertoli cell function and sperm production'},
+  {id:171, specimen:'Blood', category:'Hormones', name:'Melatonin (Serum)',                     unit:'pg/mL', low:10,   high:60,   description:'Sleep-regulating hormone; peaks at night'},
+  {id:172, specimen:'Blood', category:'Hormones', name:'Serotonin',                             unit:'ng/mL', low:101,  high:283,  description:'Neurotransmitter; elevated in carcinoid syndrome'},
+
+  // Pancreatic Function (7)
+  {id:173, specimen:'Blood', category:'Pancreatic Function', name:'Amylase',                    unit:'U/L',   low:28,   high:100,  description:'Enzyme that digests starch; elevated in pancreatitis'},
+  {id:174, specimen:'Blood', category:'Pancreatic Function', name:'Lipase',                     unit:'U/L',   low:0,    high:160,  description:'Enzyme that digests fats; specific for pancreatitis'},
+  {id:175, specimen:'Blood', category:'Pancreatic Function', name:'Trypsin',                    unit:'ng/mL', low:10,   high:57,   description:'Pancreatic enzyme for protein digestion'},
+  {id:176, specimen:'Blood', category:'Pancreatic Function', name:'Pancreatic Polypeptide',     unit:'pg/mL', low:0,    high:300,  description:'Hormone regulating pancreatic enzyme secretion'},
+  {id:177, specimen:'Blood', category:'Pancreatic Function', name:'Vasoactive Intestinal Pep.', unit:'pg/mL', low:0,    high:60,   description:'VIP — regulates smooth muscle and secretion'},
+  {id:178, specimen:'Blood', category:'Pancreatic Function', name:'Gastrin',                    unit:'pg/mL', low:0,    high:100,  description:'Stimulates gastric acid secretion; elevated in ZE syndrome'},
+  {id:179, specimen:'Blood', category:'Pancreatic Function', name:'Secretin',                   unit:'pg/mL', low:10,   high:75,   description:'Pancreatic secretion stimulator; low in chronic pancreatitis'},
+
+  // Autoimmune (16)
+  {id:180, specimen:'Blood', category:'Autoimmune & Inflammation', name:'CRP',                  unit:'mg/L',  low:0,    high:10,   description:'C-reactive protein — general inflammation marker'},
+  {id:181, specimen:'Blood', category:'Autoimmune & Inflammation', name:'ESR',                  unit:'mm/hr', low:0,    high:20,   description:'Erythrocyte sedimentation rate — inflammation indicator'},
+  {id:182, specimen:'Blood', category:'Autoimmune & Inflammation', name:'ANA Titer',            unit:'titer', low:0,    high:0,    description:'Antinuclear antibody — elevated in autoimmune diseases'},
+  {id:183, specimen:'Blood', category:'Autoimmune & Inflammation', name:'RF (Rheumatoid Factor)',unit:'IU/mL',low:0,    high:14,   description:'Antibody associated with rheumatoid arthritis'},
+  {id:184, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-CCP',             unit:'U/mL',  low:0,    high:20,   description:'Anti-cyclic citrullinated peptide — specific for RA'},
+  {id:185, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Complement C3',        unit:'mg/dL', low:90,   high:180,  description:'Complement protein; consumed in autoimmune activity'},
+  {id:186, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Complement C4',        unit:'mg/dL', low:16,   high:47,   description:'Complement protein; low in lupus'},
+  {id:187, specimen:'Blood', category:'Autoimmune & Inflammation', name:'IL-6',                 unit:'pg/mL', low:0,    high:7,    description:'Interleukin-6 — pro-inflammatory cytokine'},
+  {id:188, specimen:'Blood', category:'Autoimmune & Inflammation', name:'TNF-alpha',            unit:'pg/mL', low:0,    high:8.1,  description:'Tumor necrosis factor; key inflammatory mediator'},
+  {id:189, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Procalcitonin',        unit:'ng/mL', low:0,    high:0.1,  description:'Marker for bacterial infection and sepsis severity'},
+  {id:190, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-dsDNA',           unit:'IU/mL', low:0,    high:30,   description:'Antibody against double-stranded DNA — specific for lupus'},
+  {id:191, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-Smith Antibody',  unit:'U/mL',  low:0,    high:7,    description:'Highly specific marker for systemic lupus erythematosus'},
+  {id:192, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-Ro (SSA)',        unit:'U/mL',  low:0,    high:7,    description:'Antibody in Sjogrens syndrome and lupus'},
+  {id:193, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-La (SSB)',        unit:'U/mL',  low:0,    high:7,    description:'Antibody in Sjogrens syndrome'},
+  {id:194, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-Scl-70',          unit:'U/mL',  low:0,    high:7,    description:'Antibody specific for diffuse systemic sclerosis'},
+  {id:195, specimen:'Blood', category:'Autoimmune & Inflammation', name:'ANCA (c-ANCA/p-ANCA)', unit:'titer', low:0,    high:0,    description:'Anti-neutrophil cytoplasmic antibody; vasculitis marker'},
+
+  // Tumor Markers (15)
+  {id:196, specimen:'Blood', category:'Tumor Markers', name:'PSA (Total)',                      unit:'ng/mL', low:0,    high:4.0,  description:'Prostate-specific antigen — prostate cancer screening'},
+  {id:197, specimen:'Blood', category:'Tumor Markers', name:'Free PSA',                         unit:'ng/mL', low:0,    high:2.0,  description:'Unbound PSA; ratio helps differentiate cancer from BPH'},
+  {id:198, specimen:'Blood', category:'Tumor Markers', name:'CEA',                              unit:'ng/mL', low:0,    high:2.5,  description:'Carcinoembryonic antigen — colorectal cancer marker'},
+  {id:199, specimen:'Blood', category:'Tumor Markers', name:'CA 125',                           unit:'U/mL',  low:0,    high:35,   description:'Cancer antigen 125 — ovarian cancer marker'},
+  {id:200, specimen:'Blood', category:'Tumor Markers', name:'CA 19-9',                          unit:'U/mL',  low:0,    high:37,   description:'Pancreatic and biliary cancer marker'},
+  {id:201, specimen:'Blood', category:'Tumor Markers', name:'CA 15-3',                          unit:'U/mL',  low:0,    high:31,   description:'Breast cancer marker used to monitor treatment'},
+  {id:202, specimen:'Blood', category:'Tumor Markers', name:'AFP (Alpha-Fetoprotein)',          unit:'ng/mL', low:0,    high:8.1,  description:'Liver and testicular germ cell tumor marker'},
+  {id:203, specimen:'Blood', category:'Tumor Markers', name:'Beta-hCG (Tumor)',                 unit:'mIU/mL',low:0,    high:2.5,  description:'Testicular and gestational trophoblastic tumor'},
+  {id:204, specimen:'Blood', category:'Tumor Markers', name:'Calcitonin',                       unit:'pg/mL', low:0,    high:10,   description:'Elevated in medullary thyroid cancer'},
+  {id:205, specimen:'Blood', category:'Tumor Markers', name:'Chromogranin A',                   unit:'ng/mL', low:0,    high:100,  description:'Neuroendocrine tumor marker'},
+  {id:206, specimen:'Blood', category:'Tumor Markers', name:'Neuron-Specific Enolase',          unit:'ng/mL', low:0,    high:12.5, description:'Small cell lung cancer and neuroblastoma marker'},
+  {id:207, specimen:'Blood', category:'Tumor Markers', name:'CA 72-4',                          unit:'U/mL',  low:0,    high:6.9,  description:'Gastric and mucinous ovarian cancer marker'},
+  {id:208, specimen:'Blood', category:'Tumor Markers', name:'CYFRA 21-1',                       unit:'ng/mL', low:0,    high:3.3,  description:'Non-small cell lung cancer marker'},
+  {id:209, specimen:'Blood', category:'Tumor Markers', name:'HE4 (Human Epididymis 4)',         unit:'pmol/L',low:0,    high:70,   description:'Ovarian cancer marker; used with CA-125'},
+  {id:210, specimen:'Blood', category:'Tumor Markers', name:'S100B',                            unit:'μg/L',  low:0,    high:0.1,  description:'Melanoma and brain damage marker'},
+
+  // Infectious Disease (15)
+  {id:211, specimen:'Blood', category:'Infectious Disease', name:'HBsAg (Hepatitis B)',         unit:'',      low:0,    high:0,    description:'Hepatitis B surface antigen — active HBV infection'},
+  {id:212, specimen:'Blood', category:'Infectious Disease', name:'Anti-HBs',                    unit:'mIU/mL',low:10,   high:999,  description:'Hepatitis B surface antibody — immunity marker'},
+  {id:213, specimen:'Blood', category:'Infectious Disease', name:'HBeAg',                       unit:'',      low:0,    high:0,    description:'Hepatitis B e-antigen — high viral replication marker'},
+  {id:214, specimen:'Blood', category:'Infectious Disease', name:'Anti-HCV',                    unit:'',      low:0,    high:0,    description:'Hepatitis C antibody — HCV exposure marker'},
+  {id:215, specimen:'Blood', category:'Infectious Disease', name:'HCV RNA (Viral Load)',        unit:'IU/mL', low:0,    high:0,    description:'Quantitative hepatitis C viral load'},
+  {id:216, specimen:'Blood', category:'Infectious Disease', name:'HIV Ag/Ab Combo',             unit:'',      low:0,    high:0,    description:'4th generation HIV screening test'},
+  {id:217, specimen:'Blood', category:'Infectious Disease', name:'HIV Viral Load',              unit:'copies/mL',low:0, high:0,    description:'Quantitative HIV RNA; monitors treatment efficacy'},
+  {id:218, specimen:'Blood', category:'Infectious Disease', name:'VDRL / RPR (Syphilis)',       unit:'',      low:0,    high:0,    description:'Non-specific syphilis screening test'},
+  {id:219, specimen:'Blood', category:'Infectious Disease', name:'TPHA (Syphilis Confirm.)',    unit:'titer', low:0,    high:0,    description:'Treponema pallidum hemagglutination — syphilis confirmation'},
+  {id:220, specimen:'Blood', category:'Infectious Disease', name:'Widal Test (Typhoid)',        unit:'titer', low:0,    high:80,   description:'Antibody test for Salmonella typhi infection'},
+  {id:221, specimen:'Blood', category:'Infectious Disease', name:'Dengue NS1 Antigen',          unit:'',      low:0,    high:0,    description:'Early dengue fever detection antigen test'},
+  {id:222, specimen:'Blood', category:'Infectious Disease', name:'Malaria Antigen (RDT)',       unit:'',      low:0,    high:0,    description:'Rapid antigen test for malaria parasite detection'},
+  {id:223, specimen:'Blood', category:'Infectious Disease', name:'COVID-19 Antibody (IgG)',     unit:'',      low:0,    high:0,    description:'Serology test for past SARS-CoV-2 exposure'},
+  {id:224, specimen:'Blood', category:'Infectious Disease', name:'TB QuantiFERON Gold',         unit:'IU/mL', low:0,    high:0.35, description:'Interferon-gamma release assay for TB infection'},
+  {id:225, specimen:'Blood', category:'Infectious Disease', name:'Toxoplasma IgG',              unit:'IU/mL', low:0,    high:8,    description:'Toxoplasmosis antibody; important in pregnancy'},
+
+  // Arterial Blood Gas (7)
+  {id:226, specimen:'Blood', category:'Arterial Blood Gas', name:'pH (Arterial)',               unit:'',      low:7.35, high:7.45, description:'Acidity of arterial blood; tightly regulated'},
+  {id:227, specimen:'Blood', category:'Arterial Blood Gas', name:'pCO2',                        unit:'mmHg',  low:35,   high:45,   description:'Partial pressure of CO2; reflects ventilation'},
+  {id:228, specimen:'Blood', category:'Arterial Blood Gas', name:'pO2',                         unit:'mmHg',  low:80,   high:100,  description:'Partial pressure of O2; reflects oxygenation'},
+  {id:229, specimen:'Blood', category:'Arterial Blood Gas', name:'HCO3 (Arterial)',             unit:'mEq/L', low:22,   high:26,   description:'Bicarbonate; metabolic component of acid-base balance'},
+  {id:230, specimen:'Blood', category:'Arterial Blood Gas', name:'SaO2 (O2 Saturation)',        unit:'%',     low:95,   high:100,  description:'Percentage of hemoglobin saturated with oxygen'},
+  {id:231, specimen:'Blood', category:'Arterial Blood Gas', name:'Base Excess',                 unit:'mEq/L', low:-2,   high:2,    description:'Indicates metabolic acid-base deviation'},
+  {id:232, specimen:'Blood', category:'Arterial Blood Gas', name:'Lactate (Arterial)',          unit:'mmol/L',low:0.5,  high:2.0,  description:'Elevated in tissue hypoxia and sepsis'},
+
+  // Proteins & Immunoglobulins (13)
+  {id:233, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'IgG',                 unit:'mg/dL', low:700,  high:1600, description:'Most abundant immunoglobulin; long-term immunity'},
+  {id:234, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'IgA',                 unit:'mg/dL', low:70,   high:400,  description:'Immunoglobulin in mucosal secretions'},
+  {id:235, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'IgM',                 unit:'mg/dL', low:40,   high:230,  description:'First antibody produced in acute infection'},
+  {id:236, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'IgE (Total)',         unit:'IU/mL', low:0,    high:100,  description:'Elevated in allergic diseases and parasitic infections'},
+  {id:237, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Alpha-1 Antitrypsin', unit:'mg/dL', low:100,  high:200,  description:'Protease inhibitor; deficiency causes lung and liver disease'},
+  {id:238, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Haptoglobin',         unit:'mg/dL', low:30,   high:200,  description:'Binds free hemoglobin; low in hemolytic anemia'},
+  {id:239, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Beta-2 Microglobulin',unit:'mg/L',  low:0.8,  high:2.4,  description:'Marker for lymphoma, myeloma and kidney disease'},
+  {id:240, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Ceruloplasmin',       unit:'mg/dL', low:20,   high:60,   description:'Copper-carrying protein; low in Wilsons disease'},
+  {id:241, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Prealbumin',          unit:'mg/dL', low:18,   high:40,   description:'Short-lived protein; sensitive nutritional status marker'},
+  {id:242, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'C-Reactive Protein',  unit:'mg/dL', low:0,    high:1.0,  description:'Acute phase protein; rises with inflammation or infection'},
+  {id:243, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Fibronectin',         unit:'mg/dL', low:22,   high:56,   description:'Glycoprotein involved in wound healing'},
+  {id:244, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Alpha-2 Macroglobulin',unit:'mg/dL',low:150, high:350,  description:'Large plasma protein; inhibits multiple proteases'},
+  {id:245, specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Orosomucoid (AGP)',   unit:'mg/dL', low:50,   high:120,  description:'Acute phase protein; elevated in inflammation and cancer'},
+
+  // Bone Markers (9)
+  {id:246, specimen:'Blood', category:'Bone Markers', name:'Bone ALP',                          unit:'U/L',   low:11,   high:43,   description:'Bone-specific alkaline phosphatase — bone formation'},
+  {id:247, specimen:'Blood', category:'Bone Markers', name:'Osteocalcin',                       unit:'ng/mL', low:11,   high:48,   description:'Protein secreted by osteoblasts; bone formation marker'},
+  {id:248, specimen:'Blood', category:'Bone Markers', name:'CTx (Beta-CrossLaps)',              unit:'pg/mL', low:0,    high:573,  description:'Collagen breakdown marker — bone resorption'},
+  {id:249, specimen:'Blood', category:'Bone Markers', name:'NTx (N-Telopeptide)',               unit:'nM BCE',low:5,    high:65,   description:'Bone collagen crosslink; marker of bone resorption'},
+  {id:250, specimen:'Blood', category:'Bone Markers', name:'RANKL',                             unit:'pmol/L',low:0,    high:0.2,  description:'Cytokine that stimulates osteoclast bone resorption'},
+  {id:251, specimen:'Blood', category:'Bone Markers', name:'Sclerostin',                        unit:'pmol/L',low:0,    high:60,   description:'Inhibitor of bone formation; marker of bone turnover'},
+  {id:252, specimen:'Blood', category:'Bone Markers', name:'Osteoprotegerin',                   unit:'pmol/L',low:1.6,  high:6.0,  description:'Decoy receptor inhibiting osteoclast activation'},
+  {id:253, specimen:'Blood', category:'Bone Markers', name:'1,25-Dihydroxyvitamin D',           unit:'pg/mL', low:18,   high:72,   description:'Active form of vitamin D; regulates calcium absorption'},
+  {id:254, specimen:'Blood', category:'Bone Markers', name:'PTH-related Peptide',               unit:'pmol/L',low:0,    high:1.3,  description:'PTHrP — elevated in hypercalcemia of malignancy'},
+
+  // Nutritional Markers (11)
+  {id:255, specimen:'Blood', category:'Nutritional Markers', name:'Transferrin',                unit:'mg/dL', low:200,  high:360,  description:'Iron transport protein; marker of protein nutritional status'},
+  {id:256, specimen:'Blood', category:'Nutritional Markers', name:'Retinol Binding Protein',    unit:'mg/dL', low:3,    high:6,    description:'Transports vitamin A; short-term nutritional marker'},
+  {id:257, specimen:'Blood', category:'Nutritional Markers', name:'Homocysteine',               unit:'μmol/L',low:5,    high:15,   description:'Elevated with B12/folate deficiency and CV risk'},
+  {id:258, specimen:'Blood', category:'Nutritional Markers', name:'Methylmalonic Acid',         unit:'nmol/L',low:73,   high:376,  description:'Elevated in B12 deficiency — more specific than serum B12'},
+  {id:259, specimen:'Blood', category:'Nutritional Markers', name:'Coenzyme Q10',               unit:'μg/mL', low:0.4,  high:1.91, description:'Antioxidant vital for energy production in cells'},
+  {id:260, specimen:'Blood', category:'Nutritional Markers', name:'Carnitine (Total)',          unit:'μmol/L',low:30,   high:70,   description:'Essential for fatty acid transport into mitochondria'},
+  {id:261, specimen:'Blood', category:'Nutritional Markers', name:'Omega-3 Index',              unit:'%',     low:8,    high:12,   description:'Percentage of EPA+DHA in red blood cell membranes'},
+  {id:262, specimen:'Blood', category:'Nutritional Markers', name:'Total Antioxidant Capacity', unit:'mmol/L',low:1.13, high:1.57, description:'Overall antioxidant defense level of the blood'},
+  {id:263, specimen:'Blood', category:'Nutritional Markers', name:'Inositol',                   unit:'μg/mL', low:25,   high:70,   description:'Involved in cell signaling and lipid metabolism'},
+  {id:264, specimen:'Blood', category:'Nutritional Markers', name:'Biotin (B7)',                unit:'ng/mL', low:0.4,  high:1.2,  description:'B vitamin needed for fatty acid and glucose metabolism'},
+  {id:265, specimen:'Blood', category:'Nutritional Markers', name:'Taurine',                    unit:'nmol/mL',low:40,  high:120,  description:'Amino acid supporting heart, eyes and bile production'},
+
+  // Allergy & Sensitivity (10)
+  {id:266, specimen:'Blood', category:'Allergy & Sensitivity', name:'Total IgE',                unit:'IU/mL', low:0,    high:100,  description:'Master allergy antibody; elevated in allergic disease'},
+  {id:267, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Pollen)',    unit:'kU/L',  low:0,    high:0.35, description:'Allergy-specific antibody for pollen sensitivity'},
+  {id:268, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Dust Mite)', unit:'kU/L',  low:0,    high:0.35, description:'Allergy-specific antibody for dust mite sensitivity'},
+  {id:269, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Mold)',      unit:'kU/L',  low:0,    high:0.35, description:'Allergy-specific antibody for mold sensitivity'},
+  {id:270, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Peanut)',    unit:'kU/L',  low:0,    high:0.35, description:'Allergy-specific antibody for peanut sensitivity'},
+  {id:271, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Shellfish)', unit:'kU/L',  low:0,    high:0.35, description:'Allergy-specific antibody for shellfish sensitivity'},
+  {id:272, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Latex)',     unit:'kU/L',  low:0,    high:0.35, description:'Allergy-specific antibody for latex sensitivity'},
+  {id:273, specimen:'Blood', category:'Allergy & Sensitivity', name:'Eosinophil Cationic Prot.',unit:'μg/L',  low:2,    high:24,   description:'Marker of eosinophil activity in allergic inflammation'},
+  {id:274, specimen:'Blood', category:'Allergy & Sensitivity', name:'Anti-gliadin IgA',         unit:'U/mL',  low:0,    high:20,   description:'Marker for gluten sensitivity and celiac disease'},
+  {id:275, specimen:'Blood', category:'Allergy & Sensitivity', name:'Anti-tTG IgA',             unit:'U/mL',  low:0,    high:4,    description:'Tissue transglutaminase antibody — celiac disease marker'},
+
+  // Pediatric Reference (12)
+  {id:276, specimen:'Blood', category:'Pediatric Reference', name:'Hemoglobin (Newborn)',       unit:'g/dL',  low:14,   high:24,   description:'Normal hemoglobin range for newborns at birth'},
+  {id:277, specimen:'Blood', category:'Pediatric Reference', name:'Hemoglobin (1–6 months)',    unit:'g/dL',  low:9.5,  high:14,   description:'Normal hemoglobin range for infants 1–6 months'},
+  {id:278, specimen:'Blood', category:'Pediatric Reference', name:'Hemoglobin (6m–5 years)',    unit:'g/dL',  low:10.5, high:13.5, description:'Normal hemoglobin range for young children'},
+  {id:279, specimen:'Blood', category:'Pediatric Reference', name:'WBC (Newborn)',              unit:'×10³/μL',low:9,   high:30,   description:'Normal WBC range for newborns (higher than adults)'},
+  {id:280, specimen:'Blood', category:'Pediatric Reference', name:'WBC (1–3 years)',            unit:'×10³/μL',low:6,   high:17,   description:'Normal WBC range for toddlers 1–3 years'},
+  {id:281, specimen:'Blood', category:'Pediatric Reference', name:'Platelets (Newborn)',        unit:'×10³/μL',low:150, high:400,  description:'Normal platelet range for newborns'},
+  {id:282, specimen:'Blood', category:'Pediatric Reference', name:'Glucose (Newborn)',          unit:'mg/dL', low:40,   high:110,  description:'Normal blood glucose range for newborns'},
+  {id:283, specimen:'Blood', category:'Pediatric Reference', name:'TSH (Newborn Screening)',    unit:'mIU/L', low:1,    high:20,   description:'TSH range for congenital hypothyroidism screening'},
+  {id:284, specimen:'Blood', category:'Pediatric Reference', name:'ALP (Pediatric)',            unit:'U/L',   low:100,  high:350,  description:'Higher ALP in children due to active bone growth'},
+  {id:285, specimen:'Blood', category:'Pediatric Reference', name:'Creatinine (Child 2–12y)',   unit:'mg/dL', low:0.3,  high:0.7,  description:'Lower creatinine in children due to smaller muscle mass'},
+  {id:286, specimen:'Blood', category:'Pediatric Reference', name:'Calcium (Newborn)',          unit:'mg/dL', low:7.0,  high:11.5, description:'Calcium range in newborns; hypocalcemia is common'},
+  {id:287, specimen:'Blood', category:'Pediatric Reference', name:'Total Bilirubin (Newborn)',  unit:'mg/dL', low:0,    high:12,   description:'Physiological jaundice range in newborns under 7 days'},
+
+  // Drug Monitoring (10)
+  {id:288, specimen:'Blood', category:'Drug Monitoring', name:'Digoxin',                        unit:'ng/mL', low:0.8,  high:2.0,  description:'Cardiac glycoside; therapeutic range for heart failure'},
+  {id:289, specimen:'Blood', category:'Drug Monitoring', name:'Phenytoin (Diphenylhydantoin)',  unit:'μg/mL', low:10,   high:20,   description:'Antiepileptic drug therapeutic range'},
+  {id:290, specimen:'Blood', category:'Drug Monitoring', name:'Lithium',                        unit:'mEq/L', low:0.6,  high:1.2,  description:'Mood stabilizer therapeutic range for bipolar disorder'},
+  {id:291, specimen:'Blood', category:'Drug Monitoring', name:'Valproic Acid',                  unit:'μg/mL', low:50,   high:100,  description:'Antiepileptic/mood stabilizer therapeutic range'},
+  {id:292, specimen:'Blood', category:'Drug Monitoring', name:'Carbamazepine',                  unit:'μg/mL', low:4,    high:12,   description:'Antiepileptic drug therapeutic range'},
+  {id:293, specimen:'Blood', category:'Drug Monitoring', name:'Vancomycin (Trough)',            unit:'μg/mL', low:10,   high:20,   description:'Antibiotic trough level for serious infections'},
+  {id:294, specimen:'Blood', category:'Drug Monitoring', name:'Cyclosporine (Trough)',          unit:'ng/mL', low:100,  high:400,  description:'Immunosuppressant trough level post-transplant'},
+  {id:295, specimen:'Blood', category:'Drug Monitoring', name:'Tacrolimus (Trough)',            unit:'ng/mL', low:5,    high:20,   description:'Immunosuppressant trough level post-transplant'},
+  {id:296, specimen:'Blood', category:'Drug Monitoring', name:'Phenobarbital',                  unit:'μg/mL', low:15,   high:40,   description:'Antiepileptic / sedative therapeutic range'},
+  {id:297, specimen:'Blood', category:'Drug Monitoring', name:'Methotrexate (24h)',             unit:'μmol/L',low:0,    high:10,   description:'Chemotherapy drug; toxic above 10 at 24h post-dose'},
+
+  // Toxicology (8)
+  {id:298, specimen:'Blood', category:'Toxicology', name:'Lead (Blood)',                        unit:'μg/dL', low:0,    high:5,    description:'Blood lead level; elevated indicates lead poisoning'},
+  {id:299, specimen:'Blood', category:'Toxicology', name:'Mercury (Blood)',                     unit:'μg/L',  low:0,    high:10,   description:'Mercury level; elevated in seafood overconsumption'},
+  {id:300, specimen:'Blood', category:'Toxicology', name:'Arsenic (Blood)',                     unit:'μg/L',  low:0,    high:23,   description:'Arsenic level; elevated in industrial exposure'},
+  {id:301, specimen:'Blood', category:'Toxicology', name:'Carbon Monoxide (COHb)',              unit:'%',     low:0,    high:2,    description:'Carboxyhemoglobin; elevated in CO poisoning'},
+  {id:302, specimen:'Blood', category:'Toxicology', name:'Acetaminophen (Paracetamol)',         unit:'μg/mL', low:0,    high:10,   description:'Toxic levels in overdose; liver damage risk above 200'},
+  {id:303, specimen:'Blood', category:'Toxicology', name:'Salicylate (Aspirin)',                unit:'mg/dL', low:0,    high:30,   description:'Therapeutic aspirin level; toxic above 30 mg/dL'},
+  {id:304, specimen:'Blood', category:'Toxicology', name:'Ethanol (Blood Alcohol)',             unit:'mg/dL', low:0,    high:0,    description:'Blood alcohol level; legal limit 0–80 mg/dL varies'},
+  {id:305, specimen:'Blood', category:'Toxicology', name:'Cadmium (Blood)',                     unit:'μg/L',  low:0,    high:5,    description:'Heavy metal; elevated in smoking and industrial exposure'},
+
+  // ─── URINE TESTS ─────────────────────────────────────────────
+
+  // Urinalysis (14)
+  {id:306, specimen:'Urine', category:'Urinalysis', name:'Urine pH',                            unit:'pH',    low:4.5,  high:8.0,  description:'Acidity of urine; reflects kidney acid-base regulation'},
+  {id:307, specimen:'Urine', category:'Urinalysis', name:'Urine Specific Gravity',              unit:'',      low:1.005,high:1.030, description:'Concentration of urine; reflects hydration status'},
+  {id:308, specimen:'Urine', category:'Urinalysis', name:'Urine Protein',                       unit:'mg/dL', low:0,    high:8,    description:'Protein in urine; elevated indicates kidney damage'},
+  {id:309, specimen:'Urine', category:'Urinalysis', name:'Urine Glucose',                       unit:'mg/dL', low:0,    high:15,   description:'Glucose in urine; elevated in uncontrolled diabetes'},
+  {id:310, specimen:'Urine', category:'Urinalysis', name:'Urine Ketones',                       unit:'mg/dL', low:0,    high:5,    description:'Fat breakdown products; elevated in DKA or fasting'},
+  {id:311, specimen:'Urine', category:'Urinalysis', name:'Urine RBC',                           unit:'/hpf',  low:0,    high:2,    description:'Red blood cells in urine; elevated indicates hematuria'},
+  {id:312, specimen:'Urine', category:'Urinalysis', name:'Urine WBC',                           unit:'/hpf',  low:0,    high:5,    description:'White blood cells in urine; elevated in UTI'},
+  {id:313, specimen:'Urine', category:'Urinalysis', name:'Urine Creatinine',                    unit:'mg/dL', low:20,   high:370,  description:'Urinary creatinine to normalize other urine markers'},
+  {id:314, specimen:'Urine', category:'Urinalysis', name:'24hr Urine Protein',                  unit:'mg/24h',low:0,    high:150,  description:'Total protein excreted in 24 hours'},
+  {id:315, specimen:'Urine', category:'Urinalysis', name:'Urine Sodium',                        unit:'mEq/L', low:20,   high:220,  description:'Urinary sodium; reflects dietary intake and kidney function'},
+  {id:316, specimen:'Urine', category:'Urinalysis', name:'Urine Osmolality',                    unit:'mOsm/kg',low:300, high:900,  description:'Urine concentration; reflects ADH activity'},
+  {id:317, specimen:'Urine', category:'Urinalysis', name:'Microalbumin (Urine)',                unit:'mg/g',  low:0,    high:30,   description:'Early marker of kidney damage in diabetics'},
+  {id:318, specimen:'Urine', category:'Urinalysis', name:'Urine Uric Acid (24h)',               unit:'mg/24h',low:250,  high:750,  description:'24hr urine uric acid; elevated in gout risk'},
+  {id:319, specimen:'Urine', category:'Urinalysis', name:'Urine Calcium (24h)',                 unit:'mg/24h',low:100,  high:300,  description:'24-hour urinary calcium for bone and dietary status'},
+
+  // Urinary Hormone Markers (7)
+  {id:320, specimen:'Urine', category:'Bone Markers', name:'DPD (Deoxypyridinoline)',           unit:'nmol/mmol',low:2.3,high:5.4, description:'Urinary bone resorption marker'},
+  {id:321, specimen:'Urine', category:'Bone Markers', name:'NTx Urine (N-Telopeptide)',         unit:'nmol BCE/mmol creat',low:5,high:65,description:'Urinary bone resorption marker'},
+  {id:322, specimen:'Urine', category:'Hormones', name:'Cortisol (24h Urine)',                  unit:'μg/24h',low:4,   high:50,   description:'24-hour urinary cortisol; elevated in Cushings syndrome'},
+  {id:323, specimen:'Urine', category:'Hormones', name:'Metanephrines (Urine)',                 unit:'μg/24h',low:0,   high:400,  description:'Catecholamine metabolites; elevated in pheochromocytoma'},
+  {id:324, specimen:'Urine', category:'Hormones', name:'VMA (Vanillylmandelic Acid)',           unit:'mg/24h',low:1.4, high:6.5,  description:'Adrenaline metabolite; elevated in pheochromocytoma'},
+  {id:325, specimen:'Urine', category:'Hormones', name:'Aldosterone (Urine 24h)',               unit:'μg/24h',low:6,   high:25,   description:'24h urinary aldosterone; elevated in hyperaldosteronism'},
+  {id:326, specimen:'Urine', category:'Hormones', name:'Estrogen (Urine 24h)',                  unit:'μg/24h',low:5,   high:80,   description:'24h urinary estrogens; varies with menstrual phase'},
+
+  // ─── STOOL TESTS ─────────────────────────────────────────────
+  {id:327, specimen:'Stool', category:'Stool & GI Tests', name:'Fecal Occult Blood (FOB)',      unit:'',      low:0,    high:0,    description:'Detects hidden blood in stool; colorectal cancer screen'},
+  {id:328, specimen:'Stool', category:'Stool & GI Tests', name:'Fecal Calprotectin',            unit:'μg/g',  low:0,    high:50,   description:'Marker of intestinal inflammation; elevated in IBD'},
+  {id:329, specimen:'Stool', category:'Stool & GI Tests', name:'Fecal Elastase-1',              unit:'μg/g',  low:200,  high:500,  description:'Pancreatic exocrine function marker in stool'},
+  {id:330, specimen:'Stool', category:'Stool & GI Tests', name:'Stool pH',                      unit:'pH',    low:6.0,  high:7.2,  description:'Acidity of stool; abnormal in malabsorption'},
+  {id:331, specimen:'Stool', category:'Stool & GI Tests', name:'H. pylori Stool Antigen',       unit:'',      low:0,    high:0,    description:'Detects active H. pylori infection from stool'},
+  {id:332, specimen:'Stool', category:'Stool & GI Tests', name:'Ova & Parasites (Stool)',       unit:'',      low:0,    high:0,    description:'Microscopic exam for parasites in stool'},
+  {id:333, specimen:'Stool', category:'Stool & GI Tests', name:'Fecal Lactoferrin',             unit:'μg/mL', low:0,    high:7.2,  description:'Marker of intestinal inflammation from neutrophils'},
+  {id:334, specimen:'Stool', category:'Stool & GI Tests', name:'Stool Culture',                 unit:'',      low:0,    high:0,    description:'Culture to identify bacterial pathogens in stool'},
+  {id:335, specimen:'Stool', category:'Stool & GI Tests', name:'C. difficile Toxin',            unit:'',      low:0,    high:0,    description:'Toxin from Clostridioides difficile; causes antibiotic-related diarrhea'},
+  {id:336, specimen:'Stool', category:'Stool & GI Tests', name:'Stool Fat (72h)',               unit:'g/24h', low:0,    high:7,    description:'72-hour fecal fat; elevated in fat malabsorption'},
+  {id:337, specimen:'Stool', category:'Stool & GI Tests', name:'Fecal Chymotrypsin',            unit:'U/g',   low:6,    high:60,   description:'Pancreatic enzyme in stool; low in EPI'},
+  {id:338, specimen:'Stool', category:'Stool & GI Tests', name:'Fecal Alpha-1 Antitrypsin',     unit:'mg/dL', low:0,    high:54,   description:'Protein loss marker; elevated in protein-losing enteropathy'},
+
+  // ─── SEMEN ───────────────────────────────────────────────────
+  {id:339, specimen:'Semen', category:'Semen Analysis', name:'Sperm Count',                     unit:'×10⁶/mL',low:15,  high:300,  description:'Number of sperm per milliliter of semen'},
+  {id:340, specimen:'Semen', category:'Semen Analysis', name:'Semen Volume',                    unit:'mL',    low:1.5,  high:6.0,  description:'Total volume of ejaculate'},
+  {id:341, specimen:'Semen', category:'Semen Analysis', name:'Sperm Motility (Total)',          unit:'%',     low:40,   high:100,  description:'Percentage of sperm showing any movement'},
+  {id:342, specimen:'Semen', category:'Semen Analysis', name:'Sperm Motility (Progressive)',    unit:'%',     low:32,   high:100,  description:'Percentage of sperm moving forward progressively'},
+  {id:343, specimen:'Semen', category:'Semen Analysis', name:'Sperm Morphology (Normal)',       unit:'%',     low:4,    high:100,  description:'Percentage of sperm with normal shape (Kruger criteria)'},
+  {id:344, specimen:'Semen', category:'Semen Analysis', name:'Semen pH',                        unit:'pH',    low:7.2,  high:8.0,  description:'Acidity of semen; low pH may impair sperm function'},
+  {id:345, specimen:'Semen', category:'Semen Analysis', name:'Sperm Vitality',                  unit:'%',     low:58,   high:100,  description:'Percentage of live sperm in ejaculate'},
+  {id:346, specimen:'Semen', category:'Semen Analysis', name:'Total Motile Sperm Count',        unit:'×10⁶',  low:9,    high:999,  description:'Total number of motile sperm — fertility predictor'},
+  {id:347, specimen:'Semen', category:'Semen Analysis', name:'Sperm DNA Fragmentation',        unit:'%',     low:0,    high:15,   description:'Percentage of sperm with fragmented DNA; affects fertility'},
+  {id:348, specimen:'Semen', category:'Semen Analysis', name:'Fructose (Semen)',                unit:'μmol/ejac',low:13,high:999,  description:'Energy source for sperm; low suggests seminal vesicle issue'},
+  {id:349, specimen:'Semen', category:'Semen Analysis', name:'Zinc (Semen)',                    unit:'μmol/ejac',low:2.4,high:999, description:'Prostate-derived; important for sperm chromatin stability'},
+
+  // ─── CSF ─────────────────────────────────────────────────────
+  {id:350, specimen:'CSF', category:'CSF Analysis', name:'CSF Pressure (Opening)',              unit:'cmH2O', low:10,   high:20,   description:'Normal cerebrospinal fluid opening pressure'},
+  {id:351, specimen:'CSF', category:'CSF Analysis', name:'CSF Glucose',                         unit:'mg/dL', low:50,   high:80,   description:'CSF glucose; should be 60-70% of serum glucose'},
+  {id:352, specimen:'CSF', category:'CSF Analysis', name:'CSF Protein (Lumbar)',                unit:'mg/dL', low:15,   high:45,   description:'Protein in CSF; elevated in infection and inflammation'},
+  {id:353, specimen:'CSF', category:'CSF Analysis', name:'CSF WBC',                             unit:'/μL',   low:0,    high:5,    description:'White cells in CSF; elevated in meningitis'},
+  {id:354, specimen:'CSF', category:'CSF Analysis', name:'CSF RBC',                             unit:'/μL',   low:0,    high:0,    description:'Red cells in CSF; should be zero (unless traumatic tap)'},
+  {id:355, specimen:'CSF', category:'CSF Analysis', name:'CSF Chloride',                        unit:'mEq/L', low:120,  high:130,  description:'Chloride in CSF; low in bacterial meningitis'},
+  {id:356, specimen:'CSF', category:'CSF Analysis', name:'CSF Lactate',                         unit:'mmol/L',low:1.1,  high:2.4,  description:'CSF lactate; elevated in bacterial and fungal meningitis'},
+  {id:357, specimen:'CSF', category:'CSF Analysis', name:'CSF IgG Index',                       unit:'ratio', low:0,    high:0.65, description:'IgG synthesis rate in CNS; elevated in MS'},
+  {id:358, specimen:'CSF', category:'CSF Analysis', name:'CSF Xanthochromia',                   unit:'',      low:0,    high:0,    description:'Yellow discoloration of CSF; indicates subarachnoid hemorrhage'},
+  {id:359, specimen:'CSF', category:'CSF Analysis', name:'CSF Beta-2 Transferrin',              unit:'',      low:0,    high:0,    description:'Identifies CSF leaks from nose or ear'},
+
+  // ─── JOINT FLUID ─────────────────────────────────────────────
+  {id:360, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial WBC',              unit:'/μL',   low:0,    high:200,  description:'WBC in joint fluid; elevated in arthritis and infection'},
+  {id:361, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial Glucose',          unit:'mg/dL', low:70,   high:110,  description:'Joint fluid glucose; low in septic arthritis'},
+  {id:362, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial Protein',          unit:'g/dL',  low:1,    high:3,    description:'Protein in joint fluid; elevated in inflammatory arthritis'},
+  {id:363, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Uric Acid Crystals (Joint)',unit:'',      low:0,    high:0,    description:'Monosodium urate crystals; diagnostic for gout'},
+  {id:364, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial Viscosity',        unit:'',      low:0,    high:0,    description:'Viscosity of joint fluid; low in inflammatory conditions'},
+  {id:365, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial LDH',              unit:'U/L',   low:100,  high:250,  description:'LDH in joint fluid; elevated in septic arthritis'},
+  {id:366, specimen:'Joint Fluid', category:'Synovial Fluid', name:'CPPD Crystals (Pseudogout)',unit:'',      low:0,    high:0,    description:'Calcium pyrophosphate crystals; diagnostic for pseudogout'},
+
+  // ─── BODY FLUID ──────────────────────────────────────────────
+  {id:367, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural Protein', unit:'g/dL',  low:0,    high:3,    description:'Protein in pleural fluid; >3 suggests exudate'},
+  {id:368, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural LDH',     unit:'U/L',   low:0,    high:200,  description:'LDH in pleural fluid; elevated in exudates'},
+  {id:369, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural Glucose', unit:'mg/dL', low:60,   high:100,  description:'Glucose in pleural fluid; low in infection or malignancy'},
+  {id:370, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural pH',      unit:'pH',    low:7.30, high:7.45, description:'pH of pleural fluid; low suggests empyema or esophageal rupture'},
+  {id:371, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Ascitic WBC',     unit:'/μL',   low:0,    high:250,  description:'WBC in peritoneal fluid; >250 PMN suggests peritonitis'},
+  {id:372, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'SAAG',            unit:'g/dL',  low:1.1,  high:9,    description:'Serum-ascites albumin gradient; >1.1 suggests portal HTN'},
+  {id:373, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Ascitic Protein', unit:'g/dL',  low:0,    high:2.5,  description:'Protein in ascitic fluid; low in cirrhosis-related ascites'},
+  {id:374, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pericardial Fluid Protein',unit:'g/dL',low:0,high:3,description:'Protein in fluid around the heart; exudate vs transudate'},
+  {id:375, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Amylase (Pleural)',unit:'U/L',  low:0,    high:160,  description:'Elevated in pancreatitis-related pleural effusion'},
+
+];
+
+console.log('✅ tests-data.js v'+window.DATA_VERSION+' loaded: '+window.INITIAL_TESTS.length+' tests, '+Object.keys(window.CAT_META).length+' categories');
+
+
+// getMeta helper (available after data loads)
+function getMeta(c){ return (window.CAT_META&&window.CAT_META[c])||{accent:'#6200EE',icon:'🧪'}; }
+let tests = [];
+
+// ── State ────────────────────────────────────────────────────
+let activeFilter   = 'All';
+let activeSpecimen = 'All';
+let searchQuery    = '';
+let adminSearch    = '';
+let editingId      = null;
+let deleteId       = null;
+let adminLoggedIn  = false;
+let currentUser    = null;
+let userRanges     = {};   // { testId: { low, high, unit, note } }
+let isDark         = false;
+
+// ── Theme ────────────────────────────────────────────────────
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('medlab-theme', isDark ? 'dark' : 'light');
+}
+function initTheme() {
+  const saved = localStorage.getItem('medlab-theme');
+  if (saved === 'dark') { isDark = true; document.documentElement.setAttribute('data-theme','dark'); document.getElementById('themeToggle').textContent = '☀️'; }
+}
+
+// ── Drawer ───────────────────────────────────────────────────
+function openDrawer()  { document.getElementById('drawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('open'); }
+function closeDrawer() { document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open'); }
+function scrollToTop() { window.scrollTo({top:0,behavior:'smooth'}); }
+
+// ── Auth State Change ─────────────────────────────────────────
+function onAuthChange(user) {
+  currentUser = user;
+  const userBtn     = document.getElementById('userBtn');
+  const drawerUser  = document.getElementById('drawerUser');
+  const drawerLogin = document.getElementById('drawerLoginBtn');
+  const drawerMyR   = document.getElementById('drawerMyRanges');
+  const drawerLOut  = document.getElementById('drawerLogoutBtn');
+  const footerAuth  = document.getElementById('footerAuthBtn');
+
+  if (user) {
+    // Logged-in user (not admin)
+    const initials = (user.displayName || user.email || 'U').slice(0,2).toUpperCase();
+    userBtn.innerHTML = '<div style="width:28px;height:28px;background:var(--secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--on-secondary);font-weight:700;font-size:11px">' + initials + '</div>';
+    userBtn.onclick = openMyRanges;
+    drawerUser.style.display = 'flex';
+    document.getElementById('drawerUserAvatar').textContent = initials;
+    document.getElementById('drawerUserName').textContent = user.displayName || user.email;
+    drawerLogin.style.display = 'none';
+    drawerMyR.style.display   = 'flex';
+    drawerLOut.style.display  = 'flex';
+    if (footerAuth) footerAuth.style.display = 'none';
+    loadUserRanges(user.uid);
+  } else {
+    userBtn.innerHTML = '👤';
+    userBtn.onclick   = openUserAuth;
+    drawerUser.style.display = 'none';
+    drawerLogin.style.display = 'flex';
+    drawerMyR.style.display   = 'none';
+    drawerLOut.style.display  = 'none';
+    if (footerAuth) footerAuth.style.display = '';
+    userRanges = {};
+  }
+}
+
+// ── User Auth ─────────────────────────────────────────────────
+function openUserAuth() {
+  if (currentUser) { openMyRanges(); return; }
+  switchAuthTab('login');
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPass').value  = '';
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('authOverlay').classList.add('open');
+}
+function closeAuthModal() { document.getElementById('authOverlay').classList.remove('open'); }
+function switchAuthTab(t) {
+  document.getElementById('loginTab').classList.toggle('active', t==='login');
+  document.getElementById('signupTab').classList.toggle('active', t==='signup');
+  document.getElementById('loginPanel').classList.toggle('active', t==='login');
+  document.getElementById('signupPanel').classList.toggle('active', t==='signup');
+}
+function toggleAuthPass()   { var i=document.getElementById('authPass');   i.type=i.type==='password'?'text':'password'; }
+function toggleSignupPass() { var i=document.getElementById('signupPass'); i.type=i.type==='password'?'text':'password'; }
+
+const AUTH_MSGS = {
+  'auth/user-not-found':'No account found with this email.',
+  'auth/wrong-password':'Incorrect password.',
+  'auth/invalid-credential':'Invalid email or password.',
+  'auth/email-already-in-use':'An account with this email already exists.',
+  'auth/weak-password':'Password must be at least 6 characters.',
+  'auth/invalid-email':'Please enter a valid email address.',
+  'auth/too-many-requests':'Too many attempts. Please try again later.',
+};
+
+async function doUserLogin() {
+  const email = document.getElementById('authEmail').value.trim();
+  const pass  = document.getElementById('authPass').value;
+  const btn   = document.getElementById('loginSubmitBtn');
+  const err   = document.getElementById('loginErr');
+  err.style.display='none';
+  if (!email||!pass) { err.textContent='Please enter email and password.'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='SIGNING IN...';
+  try {
+    await window._signIn(email, pass);
+    closeAuthModal();
+    showToast('✅ Welcome back!');
+  } catch(e) {
+    err.textContent = AUTH_MSGS[e.code] || e.message;
+    err.style.display='block';
+  }
+  btn.disabled=false; btn.textContent='SIGN IN';
+}
+
+async function doSignUp() {
+  const name  = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass  = document.getElementById('signupPass').value;
+  const btn   = document.getElementById('signupSubmitBtn');
+  const err   = document.getElementById('signupErr');
+  err.style.display='none';
+  if (!email||!pass) { err.textContent='Email and password are required.'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='CREATING...';
+  try {
+    const cred = await window._signUp(email, pass);
+    if (name && window._updateProfile) await window._updateProfile(cred.user, {displayName:name});
+    closeAuthModal();
+    showToast('🎉 Account created! You can now save custom ranges.');
+  } catch(e) {
+    err.textContent = AUTH_MSGS[e.code] || e.message;
+    err.style.display='block';
+  }
+  btn.disabled=false; btn.textContent='CREATE ACCOUNT';
+}
+
+async function signOutUser() {
+  try { if(window._signOut) await window._signOut(); } catch(e){}
+  showToast('👋 Signed out.');
+  render();
+}
+
+// ── User Ranges (Firestore) ───────────────────────────────────
+async function loadUserRanges(uid) {
+  if (!window._getDoc || !window._userDocRef) return;
+  try {
+    const snap = await window._getDoc(window._userDocRef(uid));
+    userRanges = snap.exists() ? (snap.data().ranges || {}) : {};
+    render();
+  } catch(e) { userRanges = {}; }
+}
+
+async function saveUserRange(testId, low, high, unit, note) {
+  if (!currentUser) { openUserAuth(); return; }
+  if (!window._setDoc || !window._userDocRef) return;
+  userRanges[String(testId)] = { low: Number(low), high: Number(high), unit: unit||'', note: note||'' };
+  try {
+    await window._setDoc(window._userDocRef(currentUser.uid), { ranges: userRanges }, { merge: true });
+    showToast('⭐ Custom range saved!', 'success');
+    render();
+  } catch(e) { showToast('⚠️ Save failed: ' + e.message, 'danger'); }
+}
+
+async function deleteUserRange(testId) {
+  if (!currentUser) return;
+  delete userRanges[String(testId)];
+  try {
+    await window._setDoc(window._userDocRef(currentUser.uid), { ranges: userRanges }, { merge: true });
+    showToast('🗑️ Custom range removed.');
+    render();
+  } catch(e) {}
+}
+
+function openMyRanges() {
+  if (!currentUser) { openUserAuth(); return; }
+  const body = document.getElementById('myRangesBody');
+  const saved = Object.keys(userRanges);
+  if (!saved.length) {
+    body.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">⭐</div><div style="font-size:15px;font-weight:500;color:var(--text2)">No custom ranges yet</div><p style="font-size:13px;margin-top:6px">Open any test card and set your own reference range.</p></div>';
+  } else {
+    body.innerHTML = '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">' + saved.length + ' custom range(s) saved</div>' +
+      saved.map(id => {
+        const t = tests.find(x => String(x.id)===id);
+        const r = userRanges[id];
+        const m = t ? getMeta(t.category) : getMeta('');
+        return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px">' +
+          '<div style="font-size:20px">' + m.icon + '</div>' +
+          '<div style="flex:1"><div style="font-size:13.5px;font-weight:500;color:var(--text)">' + (t?t.name:'Test #'+id) + '</div>' +
+          '<div style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">' + r.low + ' – ' + r.high + ' ' + r.unit + '</div>' +
+          (r.note ? '<div style="font-size:11.5px;color:var(--muted);margin-top:2px">' + r.note + '</div>' : '') + '</div>' +
+          '<button onclick="deleteUserRange(' + id + ');openMyRanges()" style="background:rgba(176,0,32,0.08);border:1px solid rgba(176,0,32,0.2);color:var(--error);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer">Remove</button>' +
+          '</div>';
+      }).join('');
+  }
+  document.getElementById('myRangesOverlay').classList.add('open');
+}
+
+// ── Suggestion Form ───────────────────────────────────────────
+function openSuggest() { document.getElementById('suggestOverlay').classList.add('open'); document.getElementById('suggestSuccess').classList.remove('show'); document.getElementById('suggestForm').style.display=''; }
+function closeSuggest() { document.getElementById('suggestOverlay').classList.remove('open'); }
+
+async function submitSuggestion() {
+  const testName = document.getElementById('sgTestName').value.trim();
+  const err      = document.getElementById('sgErr');
+  const btn      = document.getElementById('sgSubmitBtn');
+  err.style.display = 'none';
+  if (!testName) { err.textContent='Test name is required.'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='SENDING...';
+
+  // Save suggestion to Firestore
+  const suggestion = {
+    name:     document.getElementById('sgName').value.trim()    || 'Anonymous',
+    email:    document.getElementById('sgEmail').value.trim()   || '',
+    testName: testName,
+    category: document.getElementById('sgCategory').value.trim() || '',
+    unit:     document.getElementById('sgUnit').value.trim()    || '',
+    range:    document.getElementById('sgRange').value.trim()   || '',
+    notes:    document.getElementById('sgNotes').value.trim()   || '',
+    timestamp: new Date().toISOString(),
+  };
+
+  try {
+    if (window._setDoc && window._db) {
+      const { doc, setDoc } = { doc: window._docRef, setDoc: window._setDoc };
+      const sugRef = window._db ? (function(){
+        var { doc } = { doc: window._docRef };
+        return window._setDoc(
+          {id: 'suggestions/' + Date.now(), path:'suggestions', parent: window._db},
+          suggestion
+        );
+      })() : null;
+      // Use a simple collection reference
+      const sugCol = window._db ? window._db : null;
+      if (window._writeBatch) {
+        const batch = window._writeBatch(window._db);
+        const sugDocRef = { id: String(Date.now()), path: 'suggestions/' + Date.now() };
+        // Direct approach
+        await window._setDoc(
+          (function(){ var {doc:d}=window; return {id:'s'+Date.now(),path:'suggestions/'+Date.now(),parent:null}; })(),
+          suggestion
+        ).catch(()=>{});
+      }
+    }
+  } catch(e) { /* ignore firebase errors for suggestions */ }
+
+  // Show success regardless
+  document.getElementById('suggestForm').style.display = 'none';
+  document.getElementById('suggestSuccess').classList.add('show');
+  btn.disabled=false; btn.textContent='SEND SUGGESTION';
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function allCategories() { return [...new Set(tests.map(t=>t.category))]; }
+function filteredTests() {
+  var q = searchQuery.toLowerCase();
+  return tests.filter(function(t) {
+    var ms = !q || t.name.toLowerCase().includes(q) || t.category.toLowerCase().includes(q) || (t.description||'').toLowerCase().includes(q);
+    var mc = activeFilter==='All' || t.category===activeFilter;
+    var msp = activeSpecimen==='All' || (t.specimen||'Blood')===activeSpecimen;
+    return ms && mc && msp;
+  });
+}
+function grouped(list) {
+  var g={};
+  list.forEach(t=>{ if(!g[t.category])g[t.category]=[]; g[t.category].push(t); });
+  return g;
+}
+
+// ── Render Public ─────────────────────────────────────────────
+function renderStats() {
+  var cats = allCategories().length;
+  // Update hero subtitle dynamically
+  var hs = document.getElementById('heroSubtitle');
+  if(hs) hs.textContent = 'Instantly look up normal reference ranges for '+tests.length+'+ tests across '+cats+' categories.';
+  document.getElementById('statsRow').innerHTML = [
+    {num:tests.length,label:'Total Tests'},
+    {num:cats,label:'Categories'},
+    {num:Object.keys(userRanges).length||'Free',label:Object.keys(userRanges).length?'My Ranges':'Access'},
+  ].map(s=>'<div class="stat"><div class="stat-num">'+s.num+'</div><div class="stat-label">'+s.label+'</div></div>').join('');
+}
+
+function renderPills() {
+  var relevantTests = activeSpecimen==='All' ? tests : tests.filter(function(t){ return (t.specimen||'Blood')===activeSpecimen; });
+  var relevantCats = ['All'].concat([...new Set(relevantTests.map(function(t){ return t.category; }))]);
+  if(activeFilter!=='All' && !relevantCats.includes(activeFilter)) activeFilter='All';
+  document.getElementById('filterPills').innerHTML = relevantCats.map(function(c) {
+    var m=getMeta(c); var isAll=c==='All';
+    return '<button class="pill'+(activeFilter===c?' active':'')+'" onclick="setFilter(''+c+'')">'+(isAll?'🧬 All':m.icon+' '+c)+'</button>';
+  }).join('');
+}
+
+function renderTests() {
+  var list=filteredTests(), g=grouped(list);
+  var info=document.getElementById('resultsInfo');
+  info.innerHTML='<b>'+list.length+'</b> test'+(list.length!==1?'s':'')+' found'+(searchQuery?' for <span>"'+searchQuery+'"</span>':'');
+
+  if(!list.length) {
+    document.getElementById('testList').innerHTML='<div class="empty"><div class="empty-icon">🔬</div><h3>No tests found</h3><p>Try a different search or category.</p></div>';
+    return;
+  }
+
+  document.getElementById('testList').innerHTML=Object.entries(g).map(([cat,catTests])=>{
+    var m=getMeta(cat);
+    var cards=catTests.map(t=>{
+      var hasCustom = !!userRanges[String(t.id)];
+      var r = hasCustom ? userRanges[String(t.id)] : t;
+      return '<div class="test-card'+(hasCustom?' user-custom':'')+'" onclick="openDetail('+t.id+')" style="--card-accent:'+m.accent+'">'
+        +'<style>.test-card[onclick="openDetail('+t.id+')"]::before{background:'+m.accent+'}</style>'
+        +'<div class="test-card-top"><div>'
+        +'<div class="test-name">'+t.name+'</div>'
+        +'<div class="test-desc">'+t.description+'</div>'
+        +'</div><div class="test-range">'
+        +'<div class="range-badge" style="background:'+m.accent+'18;color:'+m.accent+';border:1px solid '+m.accent+'30">'+(hasCustom?'★ ':'')+r.low+'–'+r.high+'</div>'
+        +'<div class="range-unit">'+r.unit+'</div>'
+        +'</div></div></div>';
+    }).join('');
+    return '<div class="category-section">'
+      +'<div class="cat-header"><div class="cat-icon" style="background:'+m.accent+'18">'+m.icon+'</div>'
+      +'<div class="cat-name">'+cat+'</div>'
+      +'<div class="cat-divider"></div>'
+      +'<div class="cat-count" style="background:'+m.accent+'">'+catTests.length+'</div></div>'
+      +'<div class="test-grid">'+cards+'</div></div>';
+  }).join('');
+}
+
+function render() {
+  renderStats(); renderPills(); renderTests();
+  // update dynamic counts
+  var hc = document.getElementById('heroTestCount');
+  if(hc) hc.textContent = tests.length.toLocaleString();
+  var nc = document.getElementById('navTestCount');
+  if(nc) nc.textContent = tests.length + ' tests';
+  var adminSub = document.getElementById('adminSubtitle');
+  if(adminSub) adminSub.textContent = tests.length+' tests · '+[...new Set(tests.map(function(t){return t.category;}))].length+' categories';
+}
+function setFilter(cat) { activeFilter=cat; render(); }
+function setSpecimen(s) {
+  activeSpecimen = s;
+  // Reset category filter when switching specimen
+  activeFilter = 'All';
+  // Highlight active specimen pill
+  document.querySelectorAll('.specimen-pill').forEach(function(btn) {
+    var label = btn.getAttribute('data-specimen') || btn.textContent.trim();
+    btn.classList.toggle('active', label === s || (s==='All' && btn.textContent.includes('All')));
+  });
+  render();
+}
+function handleSearch(el) {
+  searchQuery=el.value;
+  document.getElementById('searchClear').classList.toggle('show',!!el.value);
+  render();
+}
+function clearSearch() {
+  searchQuery=''; document.getElementById('searchInput').value='';
+  document.getElementById('searchClear').classList.remove('show'); render();
+}
+
+// ── Detail Modal ──────────────────────────────────────────────
+function openDetail(id) {
+  var t=tests.find(x=>x.id===id); if(!t)return;
+  var m=getMeta(t.category);
+  var hasCustom=!!userRanges[String(t.id)];
+  var cr=hasCustom?userRanges[String(t.id)]:null;
+
+  var userSection='';
+  if(currentUser) {
+    var v=cr||{low:t.low,high:t.high,unit:t.unit,note:''};
+    userSection='<div class="user-range-section">'
+      +'<div class="user-range-title">⭐ My Custom Range <span class="chip" style="font-size:10px">'+( hasCustom?'Saved':'Not set')+'</span></div>'
+      +'<div class="user-range-row">'
+      +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px">Low</div><input id="urLow" class="user-range-input" type="number" value="'+v.low+'" placeholder="Low"></div>'
+      +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px">High</div><input id="urHigh" class="user-range-input" type="number" value="'+v.high+'" placeholder="High"></div>'
+      +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px">Unit</div><input id="urUnit" class="user-range-input" type="text" value="'+v.unit+'" placeholder="Unit"></div>'
+      +'</div>'
+      +'<input id="urNote" class="user-range-input" style="width:100%;margin-bottom:10px" type="text" value="'+( cr?cr.note||'':'')+ '" placeholder="Personal note (optional)">'
+      +'<button class="btn-save-range" onclick="saveUserRange('+t.id+',document.getElementById(\'urLow\').value,document.getElementById(\'urHigh\').value,document.getElementById(\'urUnit\').value,document.getElementById(\'urNote\').value)">SAVE MY RANGE</button>'
+      +(hasCustom?'<button class="btn-reset-range" onclick="deleteUserRange('+t.id+');closeDetailModal()">Reset to default</button>':'')
+      +'</div>';
+  } else {
+    userSection='<div class="user-range-section"><div class="login-prompt" onclick="closeDetailModal();openUserAuth()">'
+      +'<span class="login-prompt-icon">⭐</span>'
+      +'<div><div style="font-size:13px;font-weight:500;color:var(--text)">Save your custom range</div>'
+      +'<div style="font-size:12px;color:var(--muted)">Sign in to set and save personal reference ranges</div></div>'
+      +'<span style="font-size:12px;color:var(--primary);font-weight:500;margin-left:auto">SIGN IN →</span>'
+      +'</div></div>';
+  }
+
+  var disp=hasCustom?cr:t;
+  document.getElementById('detailModal').innerHTML=
+    '<div class="modal-header-primary" style="background:'+m.accent+'">'
+    +'<button class="modal-close" onclick="closeDetailModal()">✕</button>'
+    +'<div style="font-size:26px;margin-bottom:8px">'+m.icon+'</div>'
+    +'<div class="modal-title">'+t.name+'</div>'
+    +'<div class="modal-sub">'+t.category+(hasCustom?' · <b>Custom range active</b>':'')+'</div>'
+    +'</div>'
+    +'<div class="modal-body">'
+    +'<div class="detail-desc-box">'+t.description+'</div>'
+    +'<div style="font-size:10.5px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">Reference Range'+(hasCustom?' (Your Custom)':' (Standard)')+'</div>'
+    +'<div class="detail-grid">'
+    +'<div class="detail-cell"><div class="detail-cell-emoji">⬇️</div><div class="detail-cell-val" style="color:'+m.accent+'">'+disp.low+'</div><div class="detail-cell-label">Low</div></div>'
+    +'<div class="detail-cell"><div class="detail-cell-emoji">⬆️</div><div class="detail-cell-val" style="color:'+m.accent+'">'+disp.high+'</div><div class="detail-cell-label">High</div></div>'
+    +'<div class="detail-cell"><div class="detail-cell-emoji">📏</div><div class="detail-cell-val" style="color:'+m.accent+';font-size:12px">'+disp.unit+'</div><div class="detail-cell-label">Unit</div></div>'
+    +'</div>'
+    +'<div class="range-bar-wrap"><div class="range-bar-fill" style="background:'+m.accent+'"></div><div class="range-bar-label">'+disp.low+' – '+disp.high+' '+disp.unit+'</div></div>'
+    +'<div class="range-bar-hints"><span>Low</span><span>Normal</span><span>High</span></div>'
+    + userSection
+    +'</div>';
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetailModal() { document.getElementById('detailOverlay').classList.remove('open'); }
+
+// ── Admin Login ───────────────────────────────────────────────
+function openAdminLogin() {
+  if(adminLoggedIn){openAdminPanel();return;}
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').style.display='none';
+  document.getElementById('loginBtn').textContent='SIGN IN';
+  document.getElementById('loginBtn').disabled=false;
+  document.getElementById('loginOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('loginUser').focus(),200);
+}
+function togglePass(){var i=document.getElementById('loginPass');i.type=i.type==='password'?'text':'password';}
+async function doLogin(){
+  var email=document.getElementById('loginUser').value.trim();
+  var pass=document.getElementById('loginPass').value;
+  var btn=document.getElementById('loginBtn');
+  var err=document.getElementById('loginErr');
+  err.style.display='none';
+  if(!email||!pass){err.textContent='Please enter email and password.';err.style.display='block';return;}
+  btn.disabled=true;btn.textContent='SIGNING IN...';
+  if(!window._signIn){err.textContent='Firebase Auth not ready.';err.style.display='block';btn.disabled=false;btn.textContent='SIGN IN';return;}
+  try {
+    await window._signIn(email,pass);
+    adminLoggedIn=true;
+    document.getElementById('loginOverlay').classList.remove('open');
+    openAdminPanel();
+    showToast('✅ Admin access granted!');
+    // Auto-sync any new tests from tests-data.js to Firebase
+    setTimeout(autoSyncNewTests, 1500);
+  } catch(e) {
+    var msgs={'auth/user-not-found':'No admin account found.','auth/wrong-password':'Incorrect password.','auth/invalid-credential':'Invalid email or password.','auth/too-many-requests':'Too many attempts.'};
+    err.textContent=msgs[e.code]||e.message;err.style.display='block';
+  }
+  btn.disabled=false;btn.textContent='SIGN IN';
+}
+async function logout(){
+  try{if(window._signOut)await window._signOut();}catch(e){}
+  adminLoggedIn=false;closeAdmin();showToast('👋 Logged out.');
+}
+
+// ── Admin Panel ───────────────────────────────────────────────
+function openAdminPanel(){document.getElementById('admin-panel').classList.add('open');renderAdmin();}
+function closeAdmin(){document.getElementById('admin-panel').classList.remove('open');render();}
+function handleAdminSearch(el){adminSearch=el.value;renderAdmin();}
+function renderAdmin(){
+  var q=adminSearch.toLowerCase();
+  var list=tests.filter(t=>!q||t.name.toLowerCase().includes(q)||t.category.toLowerCase().includes(q));
+  var cats=[...new Set(tests.map(t=>t.category))];
+  document.getElementById('admin-panel').querySelector('h1').textContent='🛡️ Admin Panel ('+tests.length+' tests)';
+  document.getElementById('adminStats').innerHTML=[
+    {num:tests.length,label:'Total Tests'},
+    {num:cats.length,label:'Categories'},
+    {num:list.length,label:'Showing'},
+  ].map(s=>'<div class="a-stat"><div class="a-stat-num">'+s.num+'</div><div class="a-stat-label">'+s.label+'</div></div>').join('');
+  var g=grouped(list);
+  document.getElementById('adminContent').innerHTML=!list.length
+    ?'<div class="empty"><div class="empty-icon">🔬</div><h3>No tests found</h3></div>'
+    :Object.entries(g).map(([cat,ct])=>{
+      var m=getMeta(cat);
+      return '<div class="admin-cat-header"><div style="font-size:14px">'+m.icon+'</div><div class="admin-cat-title" style="color:'+m.accent+'">'+cat+'</div><div class="admin-cat-line"></div><div class="cat-count" style="background:'+m.accent+';font-size:10px;padding:2px 8px;border-radius:12px;color:white;font-weight:500">'+ct.length+'</div></div>'
+        +ct.map(t=>'<div class="admin-test-row"><div class="cat-dot" style="background:'+m.accent+'"></div><div class="admin-test-info"><div class="admin-test-name">'+t.name+'</div><div class="admin-test-meta">'+t.low+' – '+t.high+' '+t.unit+' · '+t.category+'</div></div>'
+          +'<button onclick="openTestForm('+t.id+')" style="padding:5px 12px;background:rgba(3,218,198,0.1);border:1px solid rgba(3,218,198,0.3);border-radius:4px;color:var(--green);font-size:11px;font-weight:500;cursor:pointer">✏️ Edit</button>'
+          +'<button onclick="openConfirm('+t.id+')" style="padding:5px 12px;background:rgba(176,0,32,0.08);border:1px solid rgba(176,0,32,0.2);border-radius:4px;color:var(--red);font-size:11px;font-weight:500;cursor:pointer;margin-left:4px">🗑️</button>'
+          +'</div>').join('');
+    }).join('');
+}
+
+// ── Add/Edit Form ─────────────────────────────────────────────
+function populateCategorySelect(sc){
+  var ex=[...new Set(tests.map(t=>t.category))];
+  var kn=Object.keys(CAT_META);
+  var all=[...new Set([...kn,...ex.filter(c=>!CAT_META[c])])];
+  var s=document.getElementById('fCategory');
+  s.innerHTML='<option value="">— Select Category —</option>'+all.map(c=>'<option value="'+c+'">'+getMeta(c).icon+' '+c+'</option>').join('')+'<option value="__custom__">＋ Custom Category</option>';
+  if(sc){if(kn.includes(sc)||ex.includes(sc))s.value=sc;else{s.value='__custom__';document.getElementById('fCustomCat').value=sc;document.getElementById('customCatGroup').style.display='block';}}
+}
+function handleCatChange(){document.getElementById('customCatGroup').style.display=document.getElementById('fCategory').value==='__custom__'?'block':'none';}
+function clearFormErrors(){['errName','errCat','errCustomCat','errLow','errHigh','errUnit','errDesc'].forEach(id=>{var e=document.getElementById(id);if(e)e.textContent='';});}
+function openTestForm(id){
+  editingId=id||null;clearFormErrors();
+  var t=id?tests.find(x=>x.id===id):null;
+  document.getElementById('formTitle').textContent=t?'✏️ Edit Test':'➕ Add New Test';
+  document.getElementById('formSubtitle').textContent=t?'Editing: '+t.name:'Fill in the details below';
+  document.getElementById('fName').value=t?t.name:'';
+  document.getElementById('fLow').value=t?t.low:'';
+  document.getElementById('fHigh').value=t?t.high:'';
+  document.getElementById('fUnit').value=t?t.unit:'';
+  document.getElementById('fDesc').value=t?t.description:'';
+  document.getElementById('customCatGroup').style.display='none';
+  document.getElementById('fCustomCat').value='';
+  populateCategorySelect(t?t.category:null);
+  document.getElementById('formOverlay').classList.add('open');
+}
+function closeFormOverlay(){document.getElementById('formOverlay').classList.remove('open');}
+function saveTest(){
+  clearFormErrors();
+  var name=document.getElementById('fName').value.trim();
+  var catVal=document.getElementById('fCategory').value;
+  var customCat=document.getElementById('fCustomCat').value.trim();
+  var low=document.getElementById('fLow').value;
+  var high=document.getElementById('fHigh').value;
+  var unit=document.getElementById('fUnit').value.trim();
+  var desc=document.getElementById('fDesc').value.trim();
+  var valid=true;
+  function e(id,msg){document.getElementById(id).textContent='⚠ '+msg;valid=false;}
+  if(!name)e('errName','Test name is required');
+  var finalCat=catVal==='__custom__'?customCat:catVal;
+  if(!catVal)e('errCat','Please select a category');
+  else if(catVal==='__custom__'&&!customCat)e('errCustomCat','Custom category name required');
+  if(low===''||isNaN(Number(low)))e('errLow','Valid number required');
+  if(high===''||isNaN(Number(high)))e('errHigh','Valid number required');
+  if(valid&&Number(low)>Number(high))e('errHigh','High must be ≥ Low');
+  if(!unit)e('errUnit','Unit required');
+  if(!desc)e('errDesc','Description required');
+  if(!valid)return;
+  var obj={name,category:finalCat,low:Number(low),high:Number(high),unit,description:desc};
+  if(editingId){
+    obj.id=editingId;tests=tests.map(t=>t.id===editingId?{...t,...obj}:t);
+    closeFormOverlay();
+    if(window._firebaseReady)fbSaveTest(obj).then(()=>showToast('✅ Test updated!','success')).catch(()=>showToast('⚠️ Firebase error.','danger'));
+    else showToast('✅ Test updated (offline).');
+  } else {
+    obj.id=Date.now();tests.push(obj);closeFormOverlay();
+    if(window._firebaseReady)fbSaveTest(obj).then(()=>showToast('✅ Test added!','success')).catch(()=>showToast('⚠️ Firebase error.','danger'));
+    else showToast('✅ Test added (offline).');
+  }
+  renderAdmin();
+}
+
+// ── Delete ────────────────────────────────────────────────────
+function openConfirm(id){
+  deleteId=id;var t=tests.find(x=>x.id===id);
+  document.getElementById('confirmMsg').innerHTML='Delete <b>"'+(t?t.name:'this test')+'"</b>? This cannot be undone.';
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirmModal(){document.getElementById('confirmOverlay').classList.remove('open');deleteId=null;}
+function confirmDelete(){
+  var id=deleteId;tests=tests.filter(t=>t.id!==id);closeConfirmModal();renderAdmin();
+  if(window._firebaseReady)fbDeleteTest(id).then(()=>showToast('🗑️ Deleted.','danger')).catch(()=>showToast('🗑️ Deleted locally.','danger'));
+  else showToast('🗑️ Deleted.');
+}
+
+// ── Firebase ─────────────────────────────────────────────────
+function setFbBadge(online,msg){
+  var b=document.getElementById('fb-badge');if(!b)return;
+  b.textContent=online?'● Live':'● Offline';b.className='fb-badge'+(online?'':' offline');b.title=msg||'';
+}
+async function loadFromFirebase(){
+  try{
+    var snap=await window._getDocs(window._col());
+    if(snap.empty){
+      showToast('⚠️ Firebase empty — login as Admin → Sync to upload tests','danger');
+      return false;
+    }
+    tests=[];snap.forEach(d=>tests.push(d.data()));tests.sort((a,b)=>a.id-b.id);return true;
+  }catch(err){
+    if(err.code==='permission-denied')throw new Error('Firestore rules blocking reads. Fix: allow read: if true;');
+    throw new Error('['+(err.code||'error')+'] '+err.message);
+  }
+}
+async function seedDatabase(){
+  var btn=document.getElementById('fb-seed-btn'),box=document.getElementById('fb-err-box');
+  box.classList.remove('show');
+  if(!window._firebaseReady||!window._writeBatch){box.textContent='⚠️ Firebase not ready.';box.classList.add('show');return;}
+  btn.textContent='⏳ Seeding...';btn.disabled=true;
+  try{
+    var bsz=490;
+    for(var i=0;i<INITIAL_TESTS.length;i+=bsz){
+      var batch=window._writeBatch(window._db);
+      INITIAL_TESTS.slice(i,i+bsz).forEach(t=>batch.set(window._docRef(t.id),t));
+      await batch.commit();
+      showToast('🔄 Uploading '+Math.min(i+bsz,INITIAL_TESTS.length)+'/'+INITIAL_TESTS.length+'...','success');
+    }
+    tests=[...INITIAL_TESTS];setFbBadge(true);render();
+    showToast('✅ '+tests.length+' tests seeded!','success');
+  }catch(err){
+    var msg=err.message||'Unknown error';
+    if(err.code==='permission-denied')msg='Permission denied! Set allow write: if true; in Firestore Rules first.';
+    box.textContent='⚠️ '+msg;box.classList.add('show');btn.textContent='📥 Retry Seed';btn.disabled=false;
+  }
+}
+async function fbSaveTest(obj){await window._setDoc(window._docRef(obj.id),obj);}
+async function fbDeleteTest(id){await window._deleteDoc(window._docRef(id));}
+function hideLoading(){} // loading screen removed
+function showFbError(msg){ setFbBadge(false,msg); console.warn('Firebase:',msg); }
+// init() is now only called when Firebase connects AFTER the site is already visible
+async function init(){
+  if(window._firebaseReady){
+    try{
+      var ok = await loadFromFirebase();
+      if(ok){
+        setFbBadge(true,'Connected to Firebase');
+        render(); // refresh with Firebase data
+        window._fbLoaded = true;
+      }
+    }catch(err){
+      setFbBadge(false, err.message);
+      console.warn('Firebase load error:',err.message);
+      // Keep showing local data — already visible
+    }
+  } else {
+    setFbBadge(false, window._firebaseError||'Firebase offline');
+  }
+}
+
+// Background connector — site is already showing, Firebase connects silently
+function waitForFirebaseBackground(max){
+  max = max||6000; var start=Date.now();
+  var poll = setInterval(function(){
+    var el = Date.now()-start;
+    if(window._firebaseReady !== undefined){
+      clearInterval(poll); init();
+    } else if(el >= max){
+      clearInterval(poll);
+      window._firebaseReady = false;
+      window._firebaseError = 'Firebase timed out — showing local data only.';
+      setFbBadge(false, window._firebaseError);
+    }
+  }, 300);
+}
+
+// ── Auto-sync new tests from tests-data.js to Firebase ─────────
+// Called after admin login — no rule change needed (auth write)
+async function autoSyncNewTests() {
+  if(!window._firebaseReady || !window._writeBatch || !window.INITIAL_TESTS) return;
+  var localVersion = window.DATA_VERSION || 1;
+  var fbIds = new Set(tests.map(function(t){ return String(t.id); }));
+  // Find tests missing from Firebase OR where data changed
+  var missing = window.INITIAL_TESTS.filter(function(t){ return !fbIds.has(String(t.id)); });
+  // Also find tests where content changed (by comparing JSON)
+  var updated = window.INITIAL_TESTS.filter(function(t){
+    if(!fbIds.has(String(t.id))) return false;
+    var fbTest = tests.find(function(ft){ return String(ft.id)===String(t.id); });
+    if(!fbTest) return false;
+    return fbTest.name!==t.name || fbTest.low!==t.low || fbTest.high!==t.high || fbTest.unit!==t.unit || String(fbTest.specimen||'')!==String(t.specimen||'');
+  });
+  var allChanges = missing.concat(updated);
+  if(allChanges.length === 0){
+    showToast('✅ Firebase is up to date ('+tests.length+' tests)','success');
+    return;
+  }
+  showToast('🔄 Syncing '+allChanges.length+' changes to Firebase...','success');
+  try {
+    var bsz=490;
+    for(var i=0;i<allChanges.length;i+=bsz){
+      var batch=window._writeBatch(window._db);
+      allChanges.slice(i,i+bsz).forEach(function(t){ batch.set(window._docRef(t.id),t); });
+      await batch.commit();
+    }
+    // Also save version metadata doc
+    try {
+      await window._setDoc(window._docRef('__meta__'), {version: localVersion, testCount: window.INITIAL_TESTS.length, updatedAt: new Date().toISOString()});
+    } catch(e) {}
+    // Update local tests array
+    allChanges.forEach(function(t){
+      var idx = tests.findIndex(function(ft){ return String(ft.id)===String(t.id); });
+      if(idx>=0) tests[idx]=t; else tests.push(t);
+    });
+    tests.sort(function(a,b){ return a.id-b.id; });
+    render();
+    showToast('✅ Synced '+allChanges.length+' changes! ('+tests.length+' total tests)','success');
+  } catch(err) {
+    console.error('AutoSync error:',err.code,err.message);
+    if(err.code==='permission-denied'){
+      showToast('⚠️ Sync failed — set Firestore rules: allow write: if request.auth != null','danger');
+    } else {
+      showToast('⚠️ Sync error: '+(err.message||err.code),'danger');
+    }
+  }
+}
+
+function waitForFirebase(max){
+  max=max||6000;var start=Date.now();
+  // 'Connecting to database...';
+  var poll=setInterval(function(){
+    var el=Date.now()-start;
+    if(window._firebaseReady!==undefined){clearInterval(poll);init();}
+    else if(el>=max){
+      clearInterval(poll);
+      window._firebaseReady=false;
+      window._firebaseError='Could not reach Firebase. Showing local data.';
+      init();
+    } else {
+      // 'Connecting... ('+Math.round(el/1000)+'s)';
+    }
+  },300);
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function showToast(msg,type){
+  var el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast '+(type||'')+' show';
+  setTimeout(()=>el.className='toast '+(type||''),3000);
+}
+
+// ── Boot ──────────────────────────────────────────────────────
+initTheme();
+tests = window.INITIAL_TESTS ? [...window.INITIAL_TESTS] : [];
+render();
+setFbBadge(false,'Connecting...');
+waitForFirebaseBackground(6000);
+</script>
+</body>
+</html>
