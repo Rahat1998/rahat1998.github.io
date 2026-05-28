@@ -774,7 +774,7 @@ function getMeta(cat){return CAT_META[cat]||{accent:"#6200ee",icon:"🧪"};}
     <button class="drawer-item" onclick="closeDrawer();document.getElementById('specimenSection').scrollIntoView()"><span class="icon">🧪</span>Browse Tests</button>
     <div class="drawer-section">Account</div>
     <button class="drawer-item" id="drawerUserBtn" onclick="closeDrawer();openUserModal()"><span class="icon">👤</span><span id="drawerUserLabel">Login / Sign Up</span></button>
-    <button class="drawer-item" onclick="closeDrawer();openAdminLogin()"><span class="icon">🔐</span>Admin Login</button>
+    <button class="drawer-item" onclick="closeDrawer();openAdminIfLoggedIn()"><span class="icon">🔐</span>Admin Login</button>
     <div class="drawer-section">More</div>
     <button class="drawer-item" onclick="closeDrawer();openSuggest()"><span class="icon">💡</span>Suggest a Test</button>
   </div>
@@ -788,6 +788,7 @@ function getMeta(cat){return CAT_META[cat]||{accent:"#6200ee",icon:"🧪"};}
   <div class="topbar-title">MedLab <span id="navCount"></span></div>
   <div class="topbar-actions">
     <span id="fbDot" class="fb-dot" title="Firebase status"></span>
+    <button class="icon-btn" id="refreshBtn" onclick="refreshPage()" title="Refresh">🔄</button>
     <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     <button class="icon-btn" onclick="openUserModal()" title="Account">👤</button>
   </div>
@@ -1028,6 +1029,20 @@ function toggleTheme(){
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
   applyTheme();
 }
+function refreshPage(){
+  // Animate refresh button
+  var btn=document.getElementById('refreshBtn');
+  if(btn){ btn.style.transform='rotate(360deg)'; btn.style.transition='transform .5s'; setTimeout(function(){ btn.style.transform=''; btn.style.transition=''; },500); }
+  // Re-fetch from Firebase if connected
+  if(window._fbReady && window._getDocs && window._col){
+    toast('🔄 Refreshing...'); 
+    loadFromFirebase().then(function(){ toast('✅ Refreshed!','green'); render(); }).catch(function(){ toast('❌ Refresh failed','red'); });
+  } else {
+    tests=[...ALL_TESTS];
+    render();
+    toast('✅ Refreshed from local data','green');
+  }
+}
 
 // ── Toast ─────────────────────────────────────────────────────
 var _toastTimer;
@@ -1257,6 +1272,11 @@ function loadLocalRanges(){
 
 // ── Admin Login ───────────────────────────────────────────────
 function openAdminLogin(){
+  // If already logged in as admin, go straight to panel
+  if(window._fbUser){
+    openAdmin();
+    return;
+  }
   document.getElementById('adminEmail').value='';
   document.getElementById('adminPass').value='';
   document.getElementById('adminLoginErr').style.display='none';
@@ -1305,6 +1325,14 @@ function openAdmin(){
 function closeAdmin(){
   document.getElementById('adminPanel').classList.remove('open');
   render();
+}
+function openAdminIfLoggedIn(){
+  // Re-open admin panel if already authenticated
+  if(window._fbUser){
+    openAdmin();
+  } else {
+    openAdminLogin();
+  }
 }
 function renderAdmin(q){
   if(q===undefined) q='';
@@ -1510,10 +1538,74 @@ function openUserModal(){
   var body=document.getElementById('userModalBody');
   if(fbUser){
     title.textContent='👤 My Account';
-    sub.textContent=fbUser.email;
-    body.innerHTML='<div style="text-align:center;padding:16px 0"><div style="font-size:40px;margin-bottom:12px">👤</div><div style="font-size:15px;font-weight:600;margin-bottom:4px">'+fbUser.email+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:20px">Logged in</div><button class="btn btn-outline btn-full" id="logoutBtn">Logout</button></div>';
+    sub.textContent=fbUser.emailVerified?'✅ Verified':'⚠️ Email not verified';
+    var savedCount=Object.keys(userRanges).length;
+    var verBadge=fbUser.emailVerified
+      ?'<span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">✅ Verified</span>'
+      :'<span style="background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">⚠️ Not Verified</span>';
+    var rangeRows='';
+    if(savedCount>0){
+      rangeRows='<div style="margin:14px 0 0;text-align:left">';
+      rangeRows+='<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">My Saved Ranges ('+savedCount+')</div>';
+      Object.keys(userRanges).forEach(function(tid){
+        var t=tests.find(function(x){ return String(x.id)===tid; });
+        var cr=userRanges[tid];
+        if(t&&cr){
+          rangeRows+='<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;margin-bottom:5px">';
+          rangeRows+='<div><div style="font-size:12px;font-weight:600">'+t.name+'</div>';
+          rangeRows+='<div style="font-size:11px;color:var(--muted)">'+cr.low+' – '+cr.high+' '+cr.unit+'</div></div>';
+          rangeRows+='<button class="btn-del-sm" data-reset="'+tid+'">✕</button>';
+          rangeRows+='</div>';
+        }
+      });
+      rangeRows+='</div>';
+    }
+    body.innerHTML=
+      '<div style="text-align:center;padding:12px 0 4px">'+
+      '<div style="font-size:36px;margin-bottom:10px">👤</div>'+
+      '<div style="font-size:14px;font-weight:600;margin-bottom:4px">'+fbUser.email+'</div>'+
+      '<div style="margin-bottom:16px">'+verBadge+'</div>'+
+      (!fbUser.emailVerified?'<button class="btn btn-outline btn-full" id="resendVerBtn2" style="margin-bottom:8px">📧 Resend Verification Email</button>':'')+
+      '</div>'+
+      rangeRows+
+      '<div style="display:flex;gap:8px;margin-top:16px">'+
+      (savedCount>0?'<button class="btn btn-outline" id="resetAllBtn" style="flex:1;border-color:#ef9a9a;color:var(--red)">🗑️ Reset All Ranges</button>':'')+
+      '<button class="btn btn-outline" id="logoutBtn" style="flex:1">Logout</button>'+
+      '</div>';
+    // Wire buttons
     var lb=document.getElementById('logoutBtn');
     if(lb) lb.onclick=userLogout;
+    var rab=document.getElementById('resetAllBtn');
+    if(rab) rab.onclick=function(){
+      if(confirm('Reset ALL your saved reference ranges?')){
+        // Clear all userRanges
+        Object.keys(userRanges).forEach(function(k){ localStorage.removeItem('ur_'+k); });
+        userRanges={};
+        render();
+        closeUserModal();
+        toast('🗑️ All saved ranges reset','red');
+      }
+    };
+    var rv2=document.getElementById('resendVerBtn2');
+    if(rv2) rv2.onclick=async function(){
+      try{
+        var {sendEmailVerification}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+        if(window._fbUser) await sendEmailVerification(window._fbUser);
+        toast('📧 Verification email sent!','green');
+      }catch(e){ toast('Error: '+e.message,'red'); }
+    };
+    // Wire individual reset buttons
+    body.onclick=function(e){
+      var resetBtn=e.target.closest ? e.target.closest('[data-reset]') : null;
+      if(resetBtn){
+        var tid=resetBtn.getAttribute('data-reset');
+        delete userRanges[tid];
+        localStorage.removeItem('ur_'+tid);
+        render();
+        openUserModal(); // refresh modal
+        toast('Range reset','red');
+      }
+    };
   } else {
     title.textContent='👤 Account';
     sub.textContent='Login or create an account';
@@ -1550,25 +1642,84 @@ async function doUserAuth(mode){
   var btn=document.getElementById('userAuthBtn');
   err.style.display='none';
   if(!email||!pass){ err.textContent='Enter email and password'; err.style.display='block'; return; }
-  if(!window._signIn){ err.textContent='Firebase not loaded'; err.style.display='block'; return; }
+  // Basic email format check
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Enter a valid email address'; err.style.display='block'; return; }
+  if(mode==='signup' && pass.length<6){ err.textContent='Password must be at least 6 characters'; err.style.display='block'; return; }
+  if(!window._signIn){ err.textContent='Firebase not loaded — check internet'; err.style.display='block'; return; }
   btn.textContent='Please wait…'; btn.disabled=true;
   try{
     if(mode==='login'){
-      await window._signIn(email,pass);
+      var cred=await window._signIn(email,pass);
+      // Check if email is verified (skip check for now if not enforced)
+      var user=cred.user;
+      if(user && !user.emailVerified){
+        // Allow login but show warning
+        closeUserModal();
+        toast('⚠️ Email not verified. Check your inbox.','red');
+      } else {
+        closeUserModal();
+        toast('✅ Welcome back!','green');
+      }
     } else {
-      var {createUserWithEmailAndPassword}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
-      await createUserWithEmailAndPassword(window._auth,email,pass);
+      // Sign up with email verification
+      var {createUserWithEmailAndPassword, sendEmailVerification}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      var newCred=await createUserWithEmailAndPassword(window._auth,email,pass);
+      // Send verification email
+      try{ await sendEmailVerification(newCred.user); }catch(ve){ console.warn('Verification email error:',ve); }
+      closeUserModal();
+      showVerificationNotice(email);
+      toast('✅ Account created! Check your email to verify.','green');
     }
-    closeUserModal();
-    document.getElementById('drawerUserLabel').textContent=window._fbUser?window._fbUser.email:'Account';
-    toast('✅ '+(mode==='login'?'Logged in':'Account created'),'green');
+    updateAuthUI();
     render();
   }catch(e){
-    var msgs={'auth/user-not-found':'No account found','auth/wrong-password':'Wrong password','auth/invalid-credential':'Invalid email or password','auth/email-already-in-use':'Email already registered','auth/weak-password':'Password must be 6+ characters','auth/network-request-failed':'Network error'};
+    var msgs={
+      'auth/user-not-found':'No account found with this email',
+      'auth/wrong-password':'Incorrect password',
+      'auth/invalid-credential':'Invalid email or password',
+      'auth/email-already-in-use':'Email already registered — try logging in',
+      'auth/weak-password':'Password must be at least 6 characters',
+      'auth/network-request-failed':'Network error — check your connection',
+      'auth/invalid-email':'Invalid email address',
+      'auth/too-many-requests':'Too many attempts — try again later'
+    };
     err.textContent=msgs[e.code]||(e.message||e.code);
     err.style.display='block';
     btn.textContent=mode==='login'?'Login':'Create Account'; btn.disabled=false;
   }
+}
+function showVerificationNotice(email){
+  // Show a nice verification notice modal
+  var body=document.getElementById('userModalBody');
+  var title=document.getElementById('userModalTitle');
+  if(title) title.textContent='📧 Verify Your Email';
+  if(body) body.innerHTML=
+    '<div style="text-align:center;padding:16px 0">'+
+    '<div style="font-size:48px;margin-bottom:14px">📧</div>'+
+    '<div style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:8px">Check Your Inbox</div>'+
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">A verification email was sent to:</div>'+
+    '<div style="font-size:14px;font-weight:600;color:var(--primary);margin-bottom:20px">'+email+'</div>'+
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:20px;background:var(--surface2);padding:12px;border-radius:8px;border:1px solid var(--border)">Click the link in the email to verify your account. Check spam if not received.</div>'+
+    '<button class="btn btn-primary btn-full" id="resendVerBtn">Resend Verification Email</button>'+
+    '<button class="btn btn-outline btn-full" style="margin-top:8px" id="goLoginBtn">Back to Login</button>'+
+    '</div>';
+  document.getElementById('userOverlay').classList.add('open');
+  var resendBtn=document.getElementById('resendVerBtn');
+  var goLogin=document.getElementById('goLoginBtn');
+  if(resendBtn) resendBtn.onclick=async function(){
+    try{
+      if(window._fbUser){ 
+        var {sendEmailVerification}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+        await sendEmailVerification(window._fbUser);
+        toast('📧 Verification email resent!','green');
+      }
+    }catch(e){ toast('Error: '+e.message,'red'); }
+  };
+  if(goLogin) goLogin.onclick=function(){ 
+    document.getElementById('userModalTitle').textContent='👤 Account';
+    document.getElementById('userModalBody').innerHTML=renderUserLoginForm('login');
+    wireUserFormEvents('login');
+  };
 }
 async function userLogout(){
   if(window._signOut) await window._signOut().catch(function(){});
@@ -1612,6 +1763,9 @@ function updateAuthUI(){
   var user = window._fbUser;
   var lbl = document.getElementById('drawerUserLabel');
   if(lbl) lbl.textContent = user ? user.email : 'Login / Sign Up';
+  // Show/update user icon in topbar
+  var userBtn = document.querySelector('.topbar-actions .icon-btn:last-child');
+  if(userBtn) userBtn.title = user ? ('Account: '+user.email) : 'Login / Sign Up';
 }
 
 // ── Boot ──────────────────────────────────────────────────────
