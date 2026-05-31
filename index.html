@@ -1635,6 +1635,7 @@ function openDetail(id){
   if(cr){ html += '<div class="user-range-note">★ Your custom range: '+cr.low+' – '+cr.high+' '+t.unit+'</div>'; }
   if(loggedIn){
     html += '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">';
+    if(!window._fbUser.emailVerified){ html += '<div style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:10px 12px;font-size:12px;color:#e65100;margin-bottom:10px">⚠️ <b>Email not verified.</b> Verify your email to save personal ranges. <button onclick="closeDetail();openUserModal()" style="background:none;border:none;color:var(--primary);font-size:12px;cursor:pointer;text-decoration:underline;padding:0">Resend email →</button></div>'; }
     html += '<div class="section-label" style="margin-bottom:8px">Set Your Personal Range</div>';
     html += '<div class="form-row" style="margin-bottom:8px">';
     html += '<div><label class="form-label">My Low</label><input id="myLow" class="form-input" type="number" step="any" value="'+(cr?cr.low:t.low)+'" placeholder="'+t.low+'"/></div>';
@@ -1661,6 +1662,16 @@ function closeDetail(){ document.getElementById('detailOverlay').classList.remov
 
 // ── User Range ────────────────────────────────────────────────
 function saveUserRange(id, unit){
+  // Block if email not verified
+  if(!window._fbUser){
+    toast('Please login to save ranges','red'); return;
+  }
+  if(!window._fbUser.emailVerified){
+    toast('⚠️ Verify your email first to save ranges','red');
+    closeDetail();
+    openUserModal();
+    return;
+  }
   var lo = parseFloat(document.getElementById('myLow').value);
   var hi = parseFloat(document.getElementById('myHigh').value);
   if(isNaN(lo)||isNaN(hi)){ toast('Enter valid numbers','red'); return; }
@@ -1950,10 +1961,23 @@ function wireUserFormEvents(mode){
   var ts=document.getElementById('tabSignup');
   var pe=document.getElementById('userPassEye');
   var ab=document.getElementById('userAuthBtn');
+  var fp=document.getElementById('forgotPassBtn');
   if(tl) tl.onclick=function(){ switchUserTab('login'); };
   if(ts) ts.onclick=function(){ switchUserTab('signup'); };
   if(pe) pe.onclick=function(){ togglePassVis('userPass',this); };
   if(ab) ab.onclick=function(){ doUserAuth(this.getAttribute('data-mode')||mode); };
+  if(fp) fp.onclick=sendPasswordReset;
+}
+async function sendPasswordReset(){
+  var email=document.getElementById('userEmail') ? document.getElementById('userEmail').value.trim() : '';
+  if(!email){ toast('Enter your email first','red'); return; }
+  try{
+    var {sendPasswordResetEmail}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    await sendPasswordResetEmail(window._auth, email);
+    toast('📧 Password reset email sent!','green');
+  }catch(e){
+    toast('Error: '+(e.code==='auth/user-not-found'?'No account with this email':e.message),'red');
+  }
 }
 function openUserModal(){
   var fbUser=window._fbUser;
@@ -1984,10 +2008,13 @@ function openUserModal(){
       });
       rangeRows+='</div>';
     }
+    var uName=fbUser.displayName || localStorage.getItem('medlab_user_name') || fbUser.email.split('@')[0];
+    var initials=uName.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2);
     body.innerHTML=
       '<div style="text-align:center;padding:12px 0 4px">'+
-      '<div style="font-size:36px;margin-bottom:10px">👤</div>'+
-      '<div style="font-size:14px;font-weight:600;margin-bottom:4px">'+fbUser.email+'</div>'+
+      '<div style="width:64px;height:64px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;margin:0 auto 12px;font-family:var(--font-head)">'+initials+'</div>'+
+      '<div style="font-size:17px;font-weight:800;font-family:var(--font-head);margin-bottom:3px">'+uName+'</div>'+
+      '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">'+fbUser.email+'</div>'+
       '<div style="margin-bottom:16px">'+verBadge+'</div>'+
       (!fbUser.emailVerified?'<button class="btn btn-outline btn-full" id="resendVerBtn2" style="margin-bottom:8px">📧 Resend Verification Email</button>':'')+
       '</div>'+
@@ -2049,10 +2076,17 @@ function renderUserLoginForm(mode){
   h+='<button id="tabLogin" style="flex:1;padding:10px;border:none;background:none;font-weight:600;font-size:13px;cursor:pointer;border-bottom:'+lb+'">Login</button>';
   h+='<button id="tabSignup" style="flex:1;padding:10px;border:none;background:none;font-weight:600;font-size:13px;cursor:pointer;border-bottom:'+sb+'">Sign Up</button>';
   h+='</div>';
-  h+='<div class="form-group"><label class="form-label">Email</label><input id="userEmail" class="form-input" type="email" placeholder="your@email.com"/></div>';
-  h+='<div class="form-group"><label class="form-label">Password</label><div class="pass-wrap"><input id="userPass" class="form-input" type="password" placeholder="Password"/><button class="pass-eye" id="userPassEye">👁️</button></div></div>';
+  // Show full name field only on signup
+  if(!isLogin){
+    h+='<div class="form-group"><label class="form-label">Full Name *</label><input id="userName" class="form-input" type="text" placeholder="Your full name"/></div>';
+  }
+  h+='<div class="form-group"><label class="form-label">Email *</label><input id="userEmail" class="form-input" type="email" placeholder="your@email.com"/></div>';
+  h+='<div class="form-group"><label class="form-label">Password *</label><div class="pass-wrap"><input id="userPass" class="form-input" type="password" placeholder="'+(isLogin?'Password':'At least 6 characters')+'"/><button class="pass-eye" id="userPassEye">👁️</button></div></div>';
   h+='<div id="userAuthErr" style="display:none;color:var(--red);font-size:12px;margin-bottom:8px"></div>';
   h+='<button class="btn btn-primary btn-full" id="userAuthBtn" data-mode="'+mode+'">'+(isLogin?'Login':'Create Account')+'</button>';
+  if(isLogin){
+    h+='<div style="text-align:center;margin-top:10px"><button id="forgotPassBtn" style="background:none;border:none;color:var(--primary);font-size:12px;cursor:pointer;text-decoration:underline">Forgot password?</button></div>';
+  }
   return h;
 }
 function switchUserTab(mode){
@@ -2076,23 +2110,33 @@ async function doUserAuth(mode){
       var cred=await window._signIn(email,pass);
       // Check if email is verified (skip check for now if not enforced)
       var user=cred.user;
+      // Cache display name locally
+      if(user && user.displayName) localStorage.setItem('medlab_user_name', user.displayName);
+      var displayName=user.displayName || localStorage.getItem('medlab_user_name') || email.split('@')[0];
       if(user && !user.emailVerified){
-        // Allow login but show warning
         closeUserModal();
-        toast('⚠️ Email not verified. Check your inbox.','red');
+        toast('⚠️ Hi '+displayName+'! Please verify your email.','red');
       } else {
         closeUserModal();
-        toast('✅ Welcome back!','green');
+        toast('✅ Welcome back, '+displayName+'!','green');
       }
     } else {
+      // Validate name
+      var nameInp=document.getElementById('userName');
+      var displayName=nameInp ? nameInp.value.trim() : '';
+      if(!displayName){ err.textContent='Please enter your full name'; err.style.display='block'; btn.textContent='Create Account'; btn.disabled=false; return; }
       // Sign up with email verification
-      var {createUserWithEmailAndPassword, sendEmailVerification}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      var {createUserWithEmailAndPassword, sendEmailVerification, updateProfile}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
       var newCred=await createUserWithEmailAndPassword(window._auth,email,pass);
+      // Save display name to Firebase Auth profile
+      try{ await updateProfile(newCred.user,{displayName:displayName}); }catch(pe){ console.warn('Profile update error:',pe); }
+      // Save name to localStorage as backup
+      localStorage.setItem('medlab_user_name', displayName);
       // Send verification email
       try{ await sendEmailVerification(newCred.user); }catch(ve){ console.warn('Verification email error:',ve); }
       closeUserModal();
-      showVerificationNotice(email);
-      toast('✅ Account created! Check your email to verify.','green');
+      showVerificationNotice(email, displayName);
+      toast('✅ Account created, '+displayName+'! Check email to verify.','green');
     }
     updateAuthUI();
     render();
@@ -2112,7 +2156,8 @@ async function doUserAuth(mode){
     btn.textContent=mode==='login'?'Login':'Create Account'; btn.disabled=false;
   }
 }
-function showVerificationNotice(email){
+function showVerificationNotice(email, displayName){
+  displayName = displayName || email.split('@')[0];
   // Show a nice verification notice modal
   var body=document.getElementById('userModalBody');
   var title=document.getElementById('userModalTitle');
@@ -2120,7 +2165,7 @@ function showVerificationNotice(email){
   if(body) body.innerHTML=
     '<div style="text-align:center;padding:16px 0">'+
     '<div style="font-size:48px;margin-bottom:14px">📧</div>'+
-    '<div style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:8px">Check Your Inbox</div>'+
+    '<div style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:8px">Hi, '+displayName+'! Check Your Inbox</div>'+
     '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">A verification email was sent to:</div>'+
     '<div style="font-size:14px;font-weight:600;color:var(--primary);margin-bottom:20px">'+email+'</div>'+
     '<div style="font-size:12px;color:var(--muted);margin-bottom:20px;background:var(--surface2);padding:12px;border-radius:8px;border:1px solid var(--border)">Click the link in the email to verify your account. Check spam if not received.</div>'+
@@ -2186,10 +2231,32 @@ function submitSuggest(){
 function updateAuthUI(){
   var user = window._fbUser;
   var lbl = document.getElementById('drawerUserLabel');
-  if(lbl) lbl.textContent = user ? user.email : 'Login / Sign Up';
-  // Show/update user icon in topbar
-  var userBtn = document.querySelector('.topbar-actions .icon-btn:last-child');
-  if(userBtn) userBtn.title = user ? ('Account: '+user.email) : 'Login / Sign Up';
+  if(user){
+    var uName = user.displayName || localStorage.getItem('medlab_user_name') || user.email.split('@')[0];
+    if(lbl) lbl.textContent = uName;
+    var userBtn = document.querySelector('.topbar-actions .icon-btn:last-child');
+    if(userBtn){
+      // Show initials badge on user icon
+      var initials = uName.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2);
+      userBtn.textContent = initials || '👤';
+      userBtn.title = uName + ' (' + user.email + ')';
+      userBtn.style.background = 'var(--primary)';
+      userBtn.style.color = 'white';
+      userBtn.style.fontSize = '11px';
+      userBtn.style.fontWeight = '700';
+    }
+  } else {
+    if(lbl) lbl.textContent = 'Login / Sign Up';
+    var userBtn2 = document.querySelector('.topbar-actions .icon-btn:last-child');
+    if(userBtn2){
+      userBtn2.textContent = '👤';
+      userBtn2.title = 'Login / Sign Up';
+      userBtn2.style.background = '';
+      userBtn2.style.color = '';
+      userBtn2.style.fontSize = '';
+      userBtn2.style.fontWeight = '';
+    }
+  }
 }
 
 // ── Boot ──────────────────────────────────────────────────────
