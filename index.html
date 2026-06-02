@@ -1507,6 +1507,54 @@ function grouped(list){
 }
 
 // ── Render ────────────────────────────────────────────────────
+// ── Range Display Helpers ─────────────────────────────────────────
+// Determine if a test uses Positive/Negative display
+function isPosNeg(t){
+  return t.low===0 && t.high===0 &&
+    (t.unit==='' || t.unit.toLowerCase()==='positive/negative' ||
+     /^(pos|neg|reactive|nr|ab|ag|antibody|antigen|screen|culture|pcr|dna|rna|mutation|band|crystal|cast|cytol)/i.test(t.description+' '+t.name));
+}
+// Determine if a test uses titer display
+function isTiter(t){
+  return t.unit==='titer' || /titer|titre/i.test(t.unit+' '+t.name);
+}
+// Get display range string for card
+function getRangeDisplay(t, cr){
+  if(cr){
+    if(cr.type==='posneg') return cr.note||'★ Custom';
+    if(cr.type==='titer')  return '★ < 1:'+cr.low+(cr.unit?' '+cr.unit:'');
+    return cr.low+'–'+cr.high+(cr.unit?' '+cr.unit:'');
+  }
+  if(isPosNeg(t)) return 'Negative';
+  if(isTiter(t)){
+    // For titers show like "< 1:40"
+    if(t.high===0 && t.low===0) return '< 1:40';
+    if(t.high>0) return '< 1:'+t.high;
+    return 'Negative';
+  }
+  if(t.low===0 && t.high===0) return 'See ref';
+  return t.low+'–'+t.high;
+}
+// Get Low label
+function getLowLabel(t){
+  if(isPosNeg(t)) return 'Negative';
+  if(isTiter(t)) return 'Absent';
+  return String(t.low);
+}
+// Get High label
+function getHighLabel(t){
+  if(isPosNeg(t)) return 'Positive';
+  if(isTiter(t)) return t.high ? '1:'+t.high : 'Positive';
+  return String(t.high);
+}
+// Get range bar text
+function getRangeBarText(t, lo, hi, unit){
+  if(isPosNeg(t)) return 'Normal: Negative / Reactive: Positive';
+  if(isTiter(t)) return 'Normal: Negative  |  Abnormal: '+lo+'+'+(unit?' '+unit:'');
+  if(t.low===0 && t.high===0) return 'See laboratory reference';
+  return 'Normal: '+lo+' – '+hi+(unit?' '+unit:'');
+}
+
 function render(){
   renderStats();
   renderPills();
@@ -1569,12 +1617,14 @@ function renderTests(){
       var cr = userRanges[String(t.id)];
       var lo = cr ? cr.low : t.low;
       var hi = cr ? cr.high : t.high;
-      var rangeStr = lo+'–'+hi;
+      var displayUnit = cr ? (cr.unit||t.unit) : t.unit;
+      var rangeStr = getRangeDisplay(t, cr);
+      var isSpecial = isPosNeg(t)||isTiter(t)||(t.low===0&&t.high===0);
       html += '<div class="test-card" style="border-left-color:'+m.accent+'" data-test-id="'+t.id+'">';
       html += '<div><div class="test-name">'+t.name+(cr?'<span style="font-size:10px;color:var(--primary);margin-left:4px">★</span>':'')+'</div>';
       html += '<div class="test-desc">'+t.description+'</div></div>';
       html += '<div class="test-range-wrap"><div class="range-pill" style="background:'+m.accent+'18;color:'+m.accent+'">'+rangeStr+'</div>';
-      html += '<div class="range-unit">'+t.unit+'</div></div>';
+      html += '<div class="range-unit">'+(isSpecial&&!cr?'':displayUnit)+'</div></div>';
       html += '</div>';
     });
     html += '</div></div>';
@@ -1625,24 +1675,75 @@ function openDetail(id){
   html += '<div class="detail-cat">'+t.category+' · '+(t.specimen||'Blood')+'</div></div>';
   html += '<div class="modal-body">';
   html += '<div class="detail-desc">ℹ️ '+t.description+'</div>';
-  html += '<div class="detail-grid">';
-  html += '<div class="detail-cell"><div class="detail-cell-icon">⬇️</div><div class="detail-cell-val" style="color:'+m.accent+'">'+lo+'</div><div class="detail-cell-label">Low</div></div>';
-  html += '<div class="detail-cell"><div class="detail-cell-icon">⬆️</div><div class="detail-cell-val" style="color:'+m.accent+'">'+hi+'</div><div class="detail-cell-label">High</div></div>';
-  html += '<div class="detail-cell"><div class="detail-cell-icon">📏</div><div class="detail-cell-val" style="color:'+m.accent+';font-size:12px">'+t.unit+'</div><div class="detail-cell-label">Unit</div></div>';
-  html += '</div>';
-  html += '<div class="range-bar"><div class="range-bar-fill" style="background:'+m.accent+'"></div><div class="range-bar-text" style="color:'+m.accent+'">Normal: '+lo+' – '+hi+' '+t.unit+'</div></div>';
-  html += '<div class="range-hints"><span>Low</span><span>Normal</span><span>High</span></div>';
-  if(cr){ html += '<div class="user-range-note">★ Your custom range: '+cr.low+' – '+cr.high+' '+t.unit+'</div>'; }
+  var isPN = isPosNeg(t);
+  var isTit = isTiter(t);
+  var isSpecialRange = isPN || isTit || (t.low===0 && t.high===0 && !cr);
+  var displayUnit = cr ? (cr.unit||t.unit) : t.unit;
+  if(isPN && !cr){
+    html += '<div class="detail-grid">';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">✅</div><div class="detail-cell-val" style="color:#2e7d32;font-size:13px">Negative</div><div class="detail-cell-label">Normal</div></div>';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">⛔</div><div class="detail-cell-val" style="color:var(--red);font-size:13px">Positive</div><div class="detail-cell-label">Abnormal</div></div>';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">📋</div><div class="detail-cell-val" style="color:'+m.accent+';font-size:12px">'+(t.unit||'Qualitative')+'</div><div class="detail-cell-label">Method</div></div>';
+    html += '</div>';
+    html += '<div class="range-bar"><div class="range-bar-fill" style="background:#2e7d3680"></div><div class="range-bar-text" style="color:#2e7d32">Normal Result: Negative / Non-reactive</div></div>';
+    html += '<div class="range-hints"><span>Negative</span><span>Borderline</span><span>Positive</span></div>';
+  } else if(isTit && !cr){
+    var titerHigh = t.high>0 ? '1:'+t.high : '1:40';
+    html += '<div class="detail-grid">';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">✅</div><div class="detail-cell-val" style="color:#2e7d32;font-size:13px">Negative</div><div class="detail-cell-label">Normal</div></div>';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">📊</div><div class="detail-cell-val" style="color:'+m.accent+';font-size:13px">< '+titerHigh+'</div><div class="detail-cell-label">Cut-off</div></div>';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">📏</div><div class="detail-cell-val" style="color:'+m.accent+';font-size:12px">Titer</div><div class="detail-cell-label">Unit</div></div>';
+    html += '</div>';
+    html += '<div class="range-bar"><div class="range-bar-fill" style="background:#2e7d3680"></div><div class="range-bar-text" style="color:#2e7d32">Normal: Negative  |  Abnormal: ≥ '+titerHigh+'</div></div>';
+    html += '<div class="range-hints"><span>Negative</span><span>Low Titer</span><span>High Titer</span></div>';
+  } else {
+    var dispLo = cr ? cr.low : lo;
+    var dispHi = cr ? cr.high : hi;
+    html += '<div class="detail-grid">';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">⬇️</div><div class="detail-cell-val" style="color:'+m.accent+'">'+(t.low===0&&t.high===0&&!cr?'Ref':dispLo)+'</div><div class="detail-cell-label">Low</div></div>';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">⬆️</div><div class="detail-cell-val" style="color:'+m.accent+'">'+(t.low===0&&t.high===0&&!cr?'Ref':dispHi)+'</div><div class="detail-cell-label">High</div></div>';
+    html += '<div class="detail-cell"><div class="detail-cell-icon">📏</div><div class="detail-cell-val" style="color:'+m.accent+';font-size:12px">'+displayUnit+'</div><div class="detail-cell-label">Unit</div></div>';
+    html += '</div>';
+    if(t.low===0 && t.high===0 && !cr){
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:12px;color:var(--muted);text-align:center">📋 Interpret based on laboratory reference — qualitative or see report</div>';
+    } else {
+      html += '<div class="range-bar"><div class="range-bar-fill" style="background:'+m.accent+'"></div><div class="range-bar-text" style="color:'+m.accent+'">'+(cr?'★ Your range: '+dispLo+' – '+dispHi+' '+displayUnit:'Normal: '+lo+' – '+hi+' '+displayUnit)+'</div></div>';
+      html += '<div class="range-hints"><span>Low</span><span>Normal</span><span>High</span></div>';
+    }
+  }
+  if(cr){
+    var crNote;
+    if(cr.type==='posneg') crNote='Note: '+(cr.note||'Negative');
+    else if(cr.type==='titer') crNote='Your titer cut-off: < 1:'+cr.low+(cr.unit?' '+cr.unit:'');
+    else crNote='Your range: '+cr.low+' – '+cr.high+' '+(cr.unit||t.unit);
+    html += '<div class="user-range-note">★ '+crNote+'</div>';
+  }
   if(loggedIn){
     html += '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">';
     if(!window._fbUser.emailVerified){ html += '<div style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:10px 12px;font-size:12px;color:#e65100;margin-bottom:10px">⚠️ <b>Email not verified.</b> Verify your email to save personal ranges. <button onclick="closeDetail();openUserModal()" style="background:none;border:none;color:var(--primary);font-size:12px;cursor:pointer;text-decoration:underline;padding:0">Resend email →</button></div>'; }
-    html += '<div class="section-label" style="margin-bottom:8px">Set Your Personal Range</div>';
-    html += '<div class="form-row" style="margin-bottom:8px">';
-    html += '<div><label class="form-label">My Low</label><input id="myLow" class="form-input" type="number" step="any" value="'+(cr?cr.low:t.low)+'" placeholder="'+t.low+'"/></div>';
-    html += '<div><label class="form-label">My High</label><input id="myHigh" class="form-input" type="number" step="any" value="'+(cr?cr.high:t.high)+'" placeholder="'+t.high+'"/></div>';
-    html += '</div>';
+    html += '<div class="section-label" style="margin-bottom:8px">✏️ Set My Personal Range</div>';
+    var myLowVal  = cr ? cr.low  : (isPN||isTit ? '' : t.low);
+    var myHighVal = cr ? cr.high : (isPN||isTit ? '' : t.high);
+    var myUnit    = cr ? (cr.unit||t.unit) : t.unit;
+    if(isPN && !cr){
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:10px">This is a <b>Positive / Negative</b> test. You can note a custom interpretation below.</div>';
+      html += '<div class="form-group"><label class="form-label">My Result Note</label><input id="myNote" class="form-input" type="text" placeholder="e.g. Negative" value="'+(cr&&cr.note?cr.note:'')+'"/></div>';
+    } else if(isTit && !cr){
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:10px">This is a <b>Titer</b> test. Enter your lab reference titer cut-off (e.g. 40 for 1:40).</div>';
+      html += '<div class="form-row" style="margin-bottom:8px">';
+      html += '<div><label class="form-label">My Titer Cut-off</label><input id="myLow" class="form-input" type="number" step="1" value="'+(cr?cr.low:'40')+'" placeholder="40"/></div>';
+      html += '<div><label class="form-label">Unit</label><input id="myUnit" class="form-input" type="text" value="'+(cr?cr.unit:'titer')+'" placeholder="titer"/></div>';
+      html += '</div>';
+    } else {
+      html += '<div class="form-row" style="margin-bottom:8px">';
+      html += '<div><label class="form-label">My Low</label><input id="myLow" class="form-input" type="number" step="any" value="'+myLowVal+'" placeholder="'+t.low+'"/></div>';
+      html += '<div><label class="form-label">My High</label><input id="myHigh" class="form-input" type="number" step="any" value="'+myHighVal+'" placeholder="'+t.high+'"/></div>';
+      html += '</div>';
+      html += '<div class="form-group" style="margin-bottom:8px"><label class="form-label">My Unit (editable)</label>';
+      html += '<input id="myUnit" class="form-input" type="text" value="'+myUnit+'" placeholder="'+t.unit+'"/></div>';
+    }
     html += '<div class="btn-row">';
-    html += '<button class="btn btn-primary" id="saveRangeBtn" data-tid="'+t.id+'" data-unit="'+t.unit+'" style="flex:2">Save My Range</button>';
+    html += '<button class="btn btn-primary" id="saveRangeBtn" data-tid="'+t.id+'" data-isPN="'+(isPN?'1':'0')+'" data-isTit="'+(isTit?'1':'0')+'" data-origUnit="'+t.unit+'" style="flex:2">💾 Save My Range</button>';
     if(cr) html += '<button class="btn btn-outline" id="clearRangeBtn" data-tid="'+t.id+'" style="flex:1">Reset</button>';
     html += '</div></div>';
   } else {
@@ -1654,36 +1755,62 @@ function openDetail(id){
   // wire up range save/clear buttons
   var saveBtn=document.getElementById('saveRangeBtn');
   var clearBtn=document.getElementById('clearRangeBtn');
-  if(saveBtn) saveBtn.onclick=function(){ saveUserRange(parseInt(this.getAttribute('data-tid')), this.getAttribute('data-unit')); };
+  if(saveBtn) saveBtn.onclick=function(){
+    var tid  = parseInt(this.getAttribute('data-tid'));
+    var ou   = this.getAttribute('data-origUnit')||this.getAttribute('data-unit')||'';
+    var isPN = this.getAttribute('data-isPN')==='1';
+    var isTit= this.getAttribute('data-isTit')==='1';
+    saveUserRange(tid, ou, isPN, isTit);
+  };
   if(clearBtn) clearBtn.onclick=function(){ clearUserRange(parseInt(this.getAttribute('data-tid'))); };
   document.getElementById('detailOverlay').classList.add('open');
 }
 function closeDetail(){ document.getElementById('detailOverlay').classList.remove('open'); }
 
 // ── User Range ────────────────────────────────────────────────
-function saveUserRange(id, unit){
-  // Block if email not verified
+function saveUserRange(id, origUnit, isPN, isTit){
   if(!window._fbUser){
     toast('Please login to save ranges','red'); return;
   }
   if(!window._fbUser.emailVerified){
     toast('⚠️ Verify your email first to save ranges','red');
-    closeDetail();
-    openUserModal();
-    return;
+    closeDetail(); openUserModal(); return;
   }
-  var lo = parseFloat(document.getElementById('myLow').value);
-  var hi = parseFloat(document.getElementById('myHigh').value);
-  if(isNaN(lo)||isNaN(hi)){ toast('Enter valid numbers','red'); return; }
-  if(lo>hi){ toast('Low must be ≤ High','red'); return; }
-  userRanges[String(id)] = {low:lo, high:hi, unit:unit};
-  if(window._fbUser && window._setDoc && window._db){
-    var {doc,collection} = {doc:function(d,col,id){return window._ref?window._ref(id):null}};
-    var rref = window._ref ? window._ref('ur_'+window._fbUser.uid+'_'+id) : null;
-    if(rref) window._setDoc(rref, {uid:window._fbUser.uid, testId:id, low:lo, high:hi, unit:unit}).catch(function(){});
+  var saveObj = {};
+  var loEl   = document.getElementById('myLow');
+  var hiEl   = document.getElementById('myHigh');
+  var unitEl = document.getElementById('myUnit');
+  var noteEl = document.getElementById('myNote');
+
+  if(isPN){
+    // Positive/Negative test — save note
+    var note = noteEl ? noteEl.value.trim() : 'Negative';
+    saveObj = {low:0, high:0, unit:origUnit||'', note:note, type:'posneg'};
+  } else if(isTit){
+    // Titer test — save cut-off number
+    var cutoff = loEl ? parseFloat(loEl.value) : 40;
+    if(isNaN(cutoff)||cutoff<=0){ toast('Enter a valid titer cut-off (e.g. 40 for 1:40)','red'); return; }
+    var tUnit = unitEl ? unitEl.value.trim() : 'titer';
+    saveObj = {low:cutoff, high:cutoff, unit:tUnit, type:'titer'};
+  } else {
+    // Numeric range
+    var lo = loEl ? parseFloat(loEl.value) : NaN;
+    var hi = hiEl ? parseFloat(hiEl.value) : NaN;
+    var unit = unitEl ? unitEl.value.trim() : origUnit;
+    if(isNaN(lo)||isNaN(hi)){ toast('Enter valid numbers','red'); return; }
+    if(lo>hi){ toast('Low must be ≤ High','red'); return; }
+    if(!unit){ toast('Please enter a unit','red'); return; }
+    saveObj = {low:lo, high:hi, unit:unit};
+  }
+
+  userRanges[String(id)] = saveObj;
+  // Save to Firebase
+  if(window._fbUser && window._setDoc && window._ref){
+    var payload = Object.assign({}, saveObj, {uid:window._fbUser.uid, testId:id});
+    window._setDoc(window._ref('ur_'+window._fbUser.uid+'_'+id), payload).catch(function(){});
   }
   // Save to localStorage as backup
-  localStorage.setItem('ur_'+id, JSON.stringify({low:lo,high:hi,unit:unit}));
+  localStorage.setItem('ur_'+id, JSON.stringify(saveObj));
   closeDetail();
   render();
   toast('★ Personal range saved!','green');
@@ -1999,9 +2126,13 @@ function openUserModal(){
         var t=tests.find(function(x){ return String(x.id)===tid; });
         var cr=userRanges[tid];
         if(t&&cr){
+          var crDisplay;
+          if(cr.type==='posneg') crDisplay=cr.note||'Negative';
+          else if(cr.type==='titer') crDisplay='< 1:'+cr.low+(cr.unit?' '+cr.unit:'');
+          else crDisplay=cr.low+' – '+cr.high+(cr.unit?' '+cr.unit:'');
           rangeRows+='<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;margin-bottom:5px">';
           rangeRows+='<div><div style="font-size:12px;font-weight:600">'+t.name+'</div>';
-          rangeRows+='<div style="font-size:11px;color:var(--muted)">'+cr.low+' – '+cr.high+' '+cr.unit+'</div></div>';
+          rangeRows+='<div style="font-size:11px;color:var(--muted)">'+crDisplay+'</div></div>';
           rangeRows+='<button class="btn-del-sm" data-reset="'+tid+'">✕</button>';
           rangeRows+='</div>';
         }
