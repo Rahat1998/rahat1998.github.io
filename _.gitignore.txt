@@ -1,0 +1,7 @@
+# Sensitive config — do not commit
+config.js
+
+# Build artifacts
+*.log
+.DS_Store
+node_modules/
