@@ -1173,11 +1173,75 @@ async function doUserAuth(mode){
   }
 }
 async function userLogout(){ if(window._signOut) await window._signOut().catch(function(){}); userRanges={}; closeUserModal(); updateAuthUI(); render(); toast('Logged out'); }
-async function sendPasswordReset(){
-  var email=document.getElementById('userEmail')?document.getElementById('userEmail').value.trim():'';
-  if(!email){ toast('Enter your email first','red'); return; }
-  try{ var {sendPasswordResetEmail}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"); await sendPasswordResetEmail(window._auth,email); toast('📧 Password reset email sent!','green'); }
-  catch(e){ toast('Error: '+(e.code==='auth/user-not-found'?'No account with this email':e.message),'red'); }
+function sendPasswordReset(){
+  // Show a dedicated forgot-password screen inside the user modal
+  var title=document.getElementById('userModalTitle');
+  var sub=document.getElementById('userModalSub');
+  var body=document.getElementById('userModalBody');
+  if(title) title.textContent='🔑 Reset Password';
+  if(sub)   sub.textContent='Enter your email to receive a reset link';
+  if(body){
+    body.innerHTML=
+      '<div class="form-group" style="margin-top:4px">'
+       +'<label class="form-label">Your Email Address</label>'
+       +'<input id="resetEmail" class="form-input" type="email" placeholder="your@email.com"/>'
+       +'<div id="resetMsg" style="display:none;font-size:12px;margin-top:6px;padding:9px 11px;border-radius:7px;font-weight:500"></div>'
+       +'</div>'
+       +'<button class="btn btn-primary btn-full" id="resetSendBtn" onclick="doSendReset()">📧 Send Reset Link</button>'
+       +'<button class="btn btn-outline btn-full" style="margin-top:8px" onclick="backToLogin()">← Back to Login</button>';
+    setTimeout(function(){ var inp=document.getElementById('resetEmail'); if(inp){ inp.focus(); inp.addEventListener('keydown',function(e){ if(e.key==='Enter') doSendReset(); }); } },100);
+  }
+}
+
+async function doSendReset(){
+  var emailEl=document.getElementById('resetEmail');
+  var msgEl=document.getElementById('resetMsg');
+  var btn=document.getElementById('resetSendBtn');
+  if(!emailEl||!msgEl) return;
+  var email=emailEl.value.trim();
+  msgEl.style.display='none';
+  if(!email){
+    msgEl.textContent='⚠️ Please enter your email address.';
+    msgEl.style.background='#fff3e0'; msgEl.style.color='#e65100'; msgEl.style.border='1px solid #ffe0b2';
+    msgEl.style.display='block'; return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msgEl.textContent='⚠️ Please enter a valid email address.';
+    msgEl.style.background='#fff3e0'; msgEl.style.color='#e65100'; msgEl.style.border='1px solid #ffe0b2';
+    msgEl.style.display='block'; return;
+  }
+  if(!window._auth){ msgEl.textContent='⚠️ Firebase not connected.'; msgEl.style.background='#ffebee'; msgEl.style.color='var(--red)'; msgEl.style.border='1px solid #ffcdd2'; msgEl.style.display='block'; return; }
+  btn.textContent='Sending…'; btn.disabled=true;
+  try{
+    var {sendPasswordResetEmail}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    await sendPasswordResetEmail(window._auth, email);
+    // Show success state
+    msgEl.textContent='✅ Reset link sent! Check your inbox (and spam folder).';
+    msgEl.style.background='#e8f5e9'; msgEl.style.color='#2e7d32'; msgEl.style.border='1px solid #c8e6c9';
+    msgEl.style.display='block';
+    btn.textContent='Resend Link'; btn.disabled=false;
+    emailEl.value='';
+  }catch(e){
+    var msgs={
+      'auth/user-not-found':     '⚠️ No account found with this email.',
+      'auth/invalid-email':      '⚠️ Invalid email address.',
+      'auth/too-many-requests':  '⚠️ Too many requests. Please wait and try again.',
+      'auth/network-request-failed': '⚠️ Network error. Check your connection.'
+    };
+    msgEl.textContent=msgs[e.code]||('⚠️ '+e.message);
+    msgEl.style.background='#ffebee'; msgEl.style.color='var(--red)'; msgEl.style.border='1px solid #ffcdd2';
+    msgEl.style.display='block';
+    btn.textContent='Send Reset Link'; btn.disabled=false;
+  }
+}
+
+function backToLogin(){
+  var title=document.getElementById('userModalTitle');
+  var sub=document.getElementById('userModalSub');
+  var body=document.getElementById('userModalBody');
+  if(title) title.textContent='👤 Account';
+  if(sub)   sub.textContent='Login or create an account';
+  if(body){ body.innerHTML=renderUserLoginForm('login'); wireUserFormEvents('login'); }
 }
 function showVerificationNotice(email,displayName){
   displayName=displayName||email.split('@')[0];
