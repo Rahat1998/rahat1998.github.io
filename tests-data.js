@@ -4,7 +4,7 @@
    IMPORTANT: Keep this file in the same folder as index.html
    ============================================================ */
 
-window.DATA_VERSION = 6;
+window.DATA_VERSION = 7;
 
 window.CAT_META = {
   'Complete Blood Count':         {accent:'#E53935',icon:'🩸'},
@@ -1162,6 +1162,270 @@ window.ALL_TESTS = [
   // ── Pleural & Peritoneal Fluid (extended) ─────────────────────
   {id:899, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural Cholesterol',   unit:'mg/dL',   low:0,    high:60,   description:'Elevated cholesterol effusion; chronic tuberculosis or malignancy'},
   {id:900, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Peritoneal Lactate',    unit:'mmol/L',  low:0,    high:2.5,  description:'Peritoneal lactate; elevated in gut ischemia and peritonitis'},
+
+  // ─── NEW TESTS (901–1100) ────────────────────────────────────
+
+  // ── Blood Sugar & Insulin Resistance (extended) ───────────────
+  {id:901,  specimen:'Blood', category:'Blood Sugar', name:'Insulin Resistance Score (HOMA2)',    unit:'score',   low:0,    high:1.0,  description:'HOMA2-IR computed model; more accurate than basic HOMA-IR'},
+  {id:902,  specimen:'Blood', category:'Blood Sugar', name:'Adiponectin/Leptin Ratio',            unit:'ratio',   low:1.0,  high:6.0,  description:'A/L ratio; low in metabolic syndrome and insulin resistance'},
+  {id:903,  specimen:'Blood', category:'Blood Sugar', name:'Triglyceride/HDL Ratio',              unit:'ratio',   low:0,    high:2.0,  description:'Surrogate marker for insulin resistance; >3 suggests IR'},
+  {id:904,  specimen:'Blood', category:'Blood Sugar', name:'Postprandial Insulin (2h)',            unit:'μIU/mL',  low:0,    high:60,   description:'Insulin 2 hours after glucose load; insulin secretion capacity'},
+  {id:905,  specimen:'Blood', category:'Blood Sugar', name:'Glucose/Insulin Ratio',               unit:'ratio',   low:7,    high:30,   description:'Low ratio suggests insulin resistance'},
+  {id:906,  specimen:'Blood', category:'Blood Sugar', name:'Glycated Albumin',                    unit:'%',       low:11,   high:16,   description:'2-week average glucose marker; useful in dialysis patients'},
+  {id:907,  specimen:'Blood', category:'Blood Sugar', name:'1,5-Anhydroglucitol (1,5-AG)',        unit:'μg/mL',   low:10,   high:40,   description:'Glycemic excursion marker; reflects 1-2 week glucose control'},
+  {id:908,  specimen:'Blood', category:'Blood Sugar', name:'Continuous Glucose Mean (CGM Est.)',  unit:'mg/dL',   low:70,   high:140,  description:'Estimated average glucose from CGM device data'},
+
+  // ── Lipid Profile (extended) ──────────────────────────────────
+  {id:909,  specimen:'Blood', category:'Lipid Profile', name:'Omega-3 Index (EPA+DHA)',           unit:'%',       low:8,    high:12,   description:'EPA+DHA as % of RBC fatty acids; cardiovascular risk marker'},
+  {id:910,  specimen:'Blood', category:'Lipid Profile', name:'Lipoprotein(a) Isoform apo(a)',     unit:'mg/dL',   low:0,    high:30,   description:'Lp(a) particle; genetic CV risk; not reduced by statins'},
+  {id:911,  specimen:'Blood', category:'Lipid Profile', name:'LDL Particle Number (LDL-P)',       unit:'nmol/L',  low:0,    high:1000, description:'Total LDL particles; better CV predictor than LDL-C'},
+  {id:912,  specimen:'Blood', category:'Lipid Profile', name:'Small Dense LDL-III (sdLDL)',       unit:'mg/dL',   low:0,    high:35,   description:'Most atherogenic LDL subfraction; increases with TG'},
+  {id:913,  specimen:'Blood', category:'Lipid Profile', name:'HDL Particle Number (HDL-P)',       unit:'μmol/L',  low:30,   high:40,   description:'Total HDL particles; large HDL more protective'},
+  {id:914,  specimen:'Blood', category:'Lipid Profile', name:'HDL2b Cholesterol',                 unit:'mg/dL',   low:5,    high:25,   description:'Large buoyant HDL subclass; most cardioprotective HDL'},
+  {id:915,  specimen:'Blood', category:'Lipid Profile', name:'Oxidized LDL (oxLDL)',              unit:'U/L',     low:0,    high:60,   description:'Oxidatively modified LDL; direct atherosclerosis driver'},
+  {id:916,  specimen:'Blood', category:'Lipid Profile', name:'Phospholipid Transfer Protein',     unit:'μg/mL',   low:0.5,  high:3.0,  description:'PLTP; HDL remodeling enzyme; elevated in metabolic syndrome'},
+
+  // ── Electrolytes (extended) ───────────────────────────────────
+  {id:917,  specimen:'Blood', category:'Electrolytes', name:'Lithium (Therapeutic)',              unit:'mEq/L',   low:0.6,  high:1.2,  description:'Mood stabilizer serum level; toxicity above 1.5'},
+  {id:918,  specimen:'Urine', category:'Electrolytes', name:'Urine Sodium/Creatinine Ratio',     unit:'mEq/g',   low:40,   high:220,  description:'Spot urine sodium corrected for creatinine; dietary intake'},
+  {id:919,  specimen:'Blood', category:'Electrolytes', name:'Bicarbonate (Venous)',               unit:'mEq/L',   low:22,   high:29,   description:'Venous bicarbonate; metabolic acid-base status screen'},
+  {id:920,  specimen:'Blood', category:'Electrolytes', name:'Phosphate Excretion (TmP/GFR)',     unit:'mmol/L',  low:0.8,  high:1.35, description:'Tubular maximum phosphate reabsorption; FGF-23 and PTH effect'},
+  {id:921,  specimen:'Urine', category:'Electrolytes', name:'Urinary Chloride',                  unit:'mEq/L',   low:110,  high:250,  description:'Urine Cl; low in metabolic alkalosis with vomiting (<25)'},
+  {id:922,  specimen:'Blood', category:'Electrolytes', name:'Zinc (Plasma)',                     unit:'μg/dL',   low:60,   high:130,  description:'Plasma zinc; immune function and wound healing support'},
+  {id:923,  specimen:'Blood', category:'Electrolytes', name:'Copper (Serum)',                    unit:'μg/dL',   low:70,   high:140,  description:'Serum copper; elevated in OCP use, pregnancy and inflammation'},
+
+  // ── Iron Studies (extended) ───────────────────────────────────
+  {id:924,  specimen:'Blood', category:'Iron Studies', name:'Erythropoietin (EPO)',               unit:'mIU/mL',  low:4,    high:26,   description:'Kidney hormone stimulating RBC production; low in CKD anemia'},
+  {id:925,  specimen:'Blood', category:'Iron Studies', name:'Soluble Transferrin Receptor/Log F', unit:'ratio',   low:0,    high:1.5,  description:'sTfR/log ferritin ratio; functional iron deficiency vs anemia of inflammation'},
+  {id:926,  specimen:'Blood', category:'Iron Studies', name:'Reticulocyte Hemoglobin Content',   unit:'pg',      low:28,   high:35,   description:'CHr or Ret-He; functional iron for RBC production; early ID marker'},
+  {id:927,  specimen:'Blood', category:'Iron Studies', name:'Iron Absorption (Oral)',             unit:'%',       low:10,   high:35,   description:'Percentage of oral iron absorbed; low in celiac and achlorhydria'},
+  {id:928,  specimen:'Blood', category:'Iron Studies', name:'Hepcidin-25 (Serum)',               unit:'ng/mL',   low:20,   high:280,  description:'Master iron regulator; high in anemia of inflammation, low in IDA'},
+
+  // ── Coagulation (extended) ────────────────────────────────────
+  {id:929,  specimen:'Blood', category:'Coagulation', name:'Heparin Anti-Xa (LMWH)',             unit:'IU/mL',   low:0.3,  high:0.7,  description:'LMWH therapeutic monitoring (prophylactic: 0.2–0.5)'},
+  {id:930,  specimen:'Blood', category:'Coagulation', name:'Heparin Anti-Xa (UFH)',               unit:'IU/mL',   low:0.3,  high:0.7,  description:'Unfractionated heparin monitoring; alternative to aPTT'},
+  {id:931,  specimen:'Blood', category:'Coagulation', name:'Fibrin Degradation Products (FDP)',   unit:'μg/mL',   low:0,    high:5,    description:'Overall clot breakdown marker; elevated in DIC and PE'},
+  {id:932,  specimen:'Blood', category:'Coagulation', name:'Euglobulin Clot Lysis Time',         unit:'min',     low:120,  high:300,  description:'Fibrinolytic activity; shortened in hyperfibrinolysis'},
+  {id:933,  specimen:'Blood', category:'Coagulation', name:'Reptilase Time',                     unit:'sec',     low:16,   high:22,   description:'Thrombin-independent clotting; differentiates heparin effect'},
+  {id:934,  specimen:'Blood', category:'Coagulation', name:'Anti-Cardiolipin IgG',               unit:'GPL',     low:0,    high:15,   description:'Antiphospholipid antibody; arterial and venous thrombosis risk'},
+  {id:935,  specimen:'Blood', category:'Coagulation', name:'Anti-Cardiolipin IgM',               unit:'MPL',     low:0,    high:12,   description:'IgM anticardiolipin; antiphospholipid syndrome marker'},
+  {id:936,  specimen:'Blood', category:'Coagulation', name:'Viscoelastic Test (TEG/ROTEM)',      unit:'',        low:0,    high:0,    description:'Point-of-care global hemostasis; surgical bleeding management'},
+
+  // ── Vitamins & Minerals (extended) ───────────────────────────
+  {id:937,  specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin D 1,25-OH (Active)',  unit:'pg/mL',   low:18,   high:72,   description:'Calcitriol; active form of vitamin D; regulates calcium absorption'},
+  {id:938,  specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin K2 (MK-7)',           unit:'ng/mL',   low:0.1,  high:2.2,  description:'Menaquinone-7; bone and cardiovascular calcification protection'},
+  {id:939,  specimen:'Blood', category:'Vitamins & Minerals', name:'Beta-Carotene',              unit:'μg/dL',   low:10,   high:85,   description:'Pro-vitamin A; antioxidant carotenoid; reflects dietary intake'},
+  {id:940,  specimen:'Blood', category:'Vitamins & Minerals', name:'Lycopene',                   unit:'μg/dL',   low:0,    high:60,   description:'Carotenoid antioxidant; highest in tomatoes; prostate cancer protection'},
+  {id:941,  specimen:'Blood', category:'Vitamins & Minerals', name:'Lutein + Zeaxanthin',        unit:'μg/dL',   low:0.6,  high:3.5,  description:'Macular carotenoids; protective against AMD and cataracts'},
+  {id:942,  specimen:'Blood', category:'Vitamins & Minerals', name:'Astaxanthin',                unit:'ng/mL',   low:0,    high:0.5,  description:'Potent marine carotenoid antioxidant; anti-inflammatory'},
+  {id:943,  specimen:'Blood', category:'Vitamins & Minerals', name:'Chromium (Nutritional)',     unit:'μg/L',    low:0.1,  high:2.1,  description:'Trace mineral enhancing insulin sensitivity; depleted in diabetes'},
+  {id:944,  specimen:'Blood', category:'Vitamins & Minerals', name:'Iodine (Blood)',             unit:'μg/L',    low:45,   high:90,   description:'Serum iodine; essential for thyroid hormone synthesis'},
+  {id:945,  specimen:'Blood', category:'Vitamins & Minerals', name:'Molybdenum (Serum)',         unit:'nmol/L',  low:5,    high:50,   description:'Trace element; cofactor for xanthine oxidase and sulfite oxidase'},
+  {id:946,  specimen:'Blood', category:'Vitamins & Minerals', name:'Boron (Serum)',              unit:'μg/L',    low:15,   high:350,  description:'Trace mineral; roles in bone metabolism and hormone regulation'},
+
+  // ── Proteins & Immunoglobulins (extended) ─────────────────────
+  {id:947,  specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Transthyretin (TTR)', unit:'mg/dL',   low:20,   high:40,   description:'Prealbumin; short half-life nutritional and inflammation marker'},
+  {id:948,  specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Fibronectin (Plasma)',unit:'mg/dL',   low:22,   high:56,   description:'Extracellular matrix glycoprotein; wound healing and inflammation'},
+  {id:949,  specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Clusterin (CLU)',     unit:'μg/mL',   low:35,   high:105,  description:'Molecular chaperone; linked to Alzheimers and atherosclerosis'},
+  {id:950,  specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Serum Amyloid P',    unit:'mg/L',    low:0,    high:10,   description:'Acute phase protein; component of amyloid deposits in amyloidosis'},
+  {id:951,  specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Inter-alpha Inhibitor',unit:'mg/dL',  low:20,   high:50,   description:'Anti-inflammatory protease inhibitor; low in sepsis'},
+  {id:952,  specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Vitronectin',         unit:'mg/dL',   low:20,   high:40,   description:'Multifunctional adhesive protein; complement regulation'},
+  {id:953,  specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Gelsolin (Plasma)',   unit:'μg/mL',   low:150,  high:300,  description:'Actin-scavenging protein; low in sepsis and trauma'},
+  {id:954,  specimen:'Blood', category:'Proteins & Immunoglobulins', name:'Serum Amyloid A (SAA)',unit:'mg/L',   low:0,    high:6.4,  description:'Sensitive acute phase protein; better than CRP in some conditions'},
+
+  // ── Nutritional Markers (extended) ───────────────────────────
+  {id:955,  specimen:'Blood', category:'Nutritional Markers', name:'Phosphatidylcholine',        unit:'mg/dL',   low:130,  high:250,  description:'Major phospholipid; cell membrane integrity and liver function'},
+  {id:956,  specimen:'Blood', category:'Nutritional Markers', name:'Sphingomyelin',              unit:'mg/dL',   low:15,   high:50,   description:'Structural phospholipid; altered in Niemann-Pick and CVD'},
+  {id:957,  specimen:'Blood', category:'Nutritional Markers', name:'Phosphatidylserine',         unit:'μg/mL',   low:0,    high:20,   description:'Brain-enriched phospholipid; cognitive function and inflammation'},
+  {id:958,  specimen:'Blood', category:'Nutritional Markers', name:'Stearidonic Acid (SDA)',     unit:'%',       low:0,    high:0.1,  description:'Omega-3 precursor; marker of fatty acid desaturase activity'},
+  {id:959,  specimen:'Blood', category:'Nutritional Markers', name:'Arachidonic Acid (AA)',      unit:'%',       low:7,    high:15,   description:'Omega-6 fatty acid; pro-inflammatory eicosanoid precursor'},
+  {id:960,  specimen:'Blood', category:'Nutritional Markers', name:'AA/EPA Ratio',              unit:'ratio',   low:0,    high:11,   description:'Inflammatory balance marker; high ratio = pro-inflammatory state'},
+
+  // ── Autoimmune (extended) ─────────────────────────────────────
+  {id:961,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-Centromere Ab (ACA)',  unit:'U/mL', low:0, high:7,    description:'Limited cutaneous scleroderma (CREST syndrome) specific'},
+  {id:962,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-Topoisomerase I (Scl-70)',unit:'U/mL',low:0,high:7,  description:'Diffuse systemic sclerosis antibody; ILD risk'},
+  {id:963,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-RNA Polymerase III',   unit:'U/mL', low:0, high:7,    description:'Diffuse scleroderma with renal crisis risk'},
+  {id:964,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-Fibrillarin (U3-RNP)', unit:'U/mL', low:0, high:7,    description:'Scleroderma with pulmonary arterial hypertension marker'},
+  {id:965,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-Th/To Antibody',      unit:'U/mL', low:0, high:7,    description:'Limited scleroderma with ILD and PAH overlap'},
+  {id:966,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-PmScl-100 Ab',        unit:'U/mL', low:0, high:7,    description:'Polymyositis-scleroderma overlap antibody'},
+  {id:967,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-NXP-2 Antibody',      unit:'U/mL', low:0, high:7,    description:'Dermatomyositis with calcinosis and cancer risk'},
+  {id:968,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-TIF-1γ Antibody',     unit:'U/mL', low:0, high:7,    description:'Cancer-associated dermatomyositis; paraneoplastic myositis'},
+  {id:969,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-SAE Antibody',        unit:'U/mL', low:0, high:7,    description:'Dermatomyositis-specific; associated with dysphagia'},
+  {id:970,  specimen:'Blood', category:'Autoimmune & Inflammation', name:'Serum Ferritin (MAS)',     unit:'ng/mL', low:0, high:500,  description:'Markedly elevated (>10,000) in macrophage activation syndrome'},
+
+  // ── Infectious Disease (extended) ────────────────────────────
+  {id:971,  specimen:'Blood', category:'Infectious Disease', name:'Legionella Antibody (IFA)',   unit:'titer',   low:0,    high:128,  description:'Legionnaires disease antibody; respiratory illness from water'},
+  {id:972,  specimen:'Blood', category:'Infectious Disease', name:'Mycoplasma IgM',              unit:'titer',   low:0,    high:320,  description:'Mycoplasma pneumoniae acute infection; atypical pneumonia'},
+  {id:973,  specimen:'Blood', category:'Infectious Disease', name:'Chlamydia Pneumoniae IgG',   unit:'titer',   low:0,    high:16,   description:'Past or chronic Chlamydia pneumoniae respiratory infection'},
+  {id:974,  specimen:'Blood', category:'Infectious Disease', name:'Coxsackievirus A IgM',       unit:'',        low:0,    high:0,    description:'Hand-foot-mouth disease and herpangina; enterovirus group'},
+  {id:975,  specimen:'Blood', category:'Infectious Disease', name:'Adenovirus IgG',             unit:'',        low:0,    high:0,    description:'Past adenovirus infection; respiratory, GI and eye infections'},
+  {id:976,  specimen:'Blood', category:'Infectious Disease', name:'Influenza A/B Antibody',     unit:'titer',   low:0,    high:40,   description:'Influenza immunity; protective titer generally >40'},
+  {id:977,  specimen:'Blood', category:'Infectious Disease', name:'Respiratory Syncytial Virus IgG',unit:'',    low:0,    high:0,    description:'RSV antibody; most common severe lower respiratory in infants'},
+  {id:978,  specimen:'Blood', category:'Infectious Disease', name:'SARS-CoV-2 Anti-S IgG',     unit:'BAU/mL',  low:0,    high:0,    description:'COVID-19 spike protein antibody; vaccine or infection immunity'},
+  {id:979,  specimen:'Blood', category:'Infectious Disease', name:'SARS-CoV-2 Anti-N IgG',     unit:'',        low:0,    high:0,    description:'Nucleocapsid antibody; natural infection only (not vaccine)'},
+  {id:980,  specimen:'Blood', category:'Infectious Disease', name:'Lyme Disease IgG (ELISA)',  unit:'',        low:0,    high:0,    description:'Borrelia burgdorferi antibody; Lyme disease screening'},
+
+  // ── Pancreatic Function (extended) ────────────────────────────
+  {id:981,  specimen:'Blood', category:'Pancreatic Function', name:'Pancreatic Lipase (Specific)',  unit:'U/L',   low:0,    high:160,  description:'Pancreatic-specific lipase; more specific than total lipase'},
+  {id:982,  specimen:'Blood', category:'Pancreatic Function', name:'Trypsinogen-2 (Urine)',         unit:'μg/L',  low:0,    high:50,   description:'Urine trypsinogen-2; rapid bedside pancreatitis test'},
+  {id:983,  specimen:'Blood', category:'Pancreatic Function', name:'Chromogranin A (Pancreatic NETs)',unit:'ng/mL',low:0,   high:100,  description:'Neuroendocrine tumor marker; elevated in pancreatic NETs'},
+  {id:984,  specimen:'Blood', category:'Pancreatic Function', name:'Glucagon-Like Peptide 2 (GLP-2)',unit:'pmol/L',low:0,   high:50,   description:'Intestinal growth factor; elevated in short bowel syndrome Tx'},
+  {id:985,  specimen:'Blood', category:'Pancreatic Function', name:'Motilin',                       unit:'pg/mL', low:0,    high:150,  description:'GI motility hormone; elevated in functional dyspepsia'},
+
+  // ── CSF Analysis (extended) ───────────────────────────────────
+  {id:986,  specimen:'CSF', category:'CSF Analysis', name:'CSF Adenosine Deaminase (ADA)',        unit:'U/L',    low:0,    high:10,   description:'Elevated in TB meningitis and lymphomatous meningitis'},
+  {id:987,  specimen:'CSF', category:'CSF Analysis', name:'CSF CXCL13',                           unit:'pg/mL',  low:0,    high:8,    description:'B-cell chemokine; elevated in Lyme neuroborreliosis'},
+  {id:988,  specimen:'CSF', category:'CSF Analysis', name:'CSF Ferritin',                         unit:'ng/mL',  low:0,    high:12,   description:'Iron storage in CSF; elevated in CNS hemorrhage and iron disorders'},
+  {id:989,  specimen:'CSF', category:'CSF Analysis', name:'CSF Neopterin',                        unit:'nmol/L', low:0,    high:10,   description:'CNS macrophage activation; elevated in MS relapse and encephalitis'},
+  {id:990,  specimen:'CSF', category:'CSF Analysis', name:'CSF Myelin Basic Protein (MBP)',       unit:'ng/mL',  low:0,    high:4,    description:'Myelin breakdown marker; elevated in active MS and TBI'},
+
+  // ── Reproductive & Fertility (extended) ───────────────────────
+  {id:991,  specimen:'Blood', category:'Reproductive & Fertility', name:'Total Estrogen (Serum)',  unit:'pg/mL',  low:60,   high:400,  description:'Total estrogen (E1+E2+E3); fluctuates with menstrual cycle'},
+  {id:992,  specimen:'Blood', category:'Reproductive & Fertility', name:'Androstenedione',         unit:'ng/dL',  low:50,   high:220,  description:'Androgen precursor; elevated in PCOS and CAH'},
+  {id:993,  specimen:'Blood', category:'Reproductive & Fertility', name:'3-alpha Androstanediol G',unit:'ng/dL',  low:0,    high:75,   description:'Peripheral androgen metabolite; reflects 5-alpha reductase activity'},
+  {id:994,  specimen:'Blood', category:'Reproductive & Fertility', name:'Prolactin (Macro-prolactin)',unit:'ng/mL',low:0,   high:5,    description:'Biologically inactive bound prolactin; elevated in macroprolactinemia'},
+  {id:995,  specimen:'Blood', category:'Reproductive & Fertility', name:'Relaxin (Pregnancy)',     unit:'pg/mL',  low:0,    high:300,  description:'Pregnancy hormone relaxing ligaments and cervix; corpus luteum'},
+  {id:996,  specimen:'Blood', category:'Reproductive & Fertility', name:'Anti-Zona Pellucida Ab',  unit:'',       low:0,    high:0,    description:'Antibody against egg coat; premature ovarian failure cause'},
+  {id:997,  specimen:'Blood', category:'Reproductive & Fertility', name:'Anti-Sperm Antibody (Female)',unit:'%',  low:0,    high:10,   description:'Female serum antisperm antibodies; immunological infertility'},
+
+  // ── Pediatric Reference (extended) ───────────────────────────
+  {id:998,  specimen:'Blood', category:'Pediatric Reference', name:'Newborn Bilirubin (Direct)',   unit:'mg/dL',  low:0,    high:1,    description:'Direct bilirubin in newborns; elevated = pathologic jaundice'},
+  {id:999,  specimen:'Blood', category:'Pediatric Reference', name:'Neonatal Calcium (Ionized)',   unit:'mmol/L', low:1.10, high:1.40, description:'Ionized calcium in neonates; hypocalcemia common in premature'},
+  {id:1000, specimen:'Blood', category:'Pediatric Reference', name:'Alkaline Phosphatase (Infant)',unit:'U/L',    low:110,  high:700,  description:'High ALP normal in rapidly growing infants; bone formation'},
+
+  // ── Drug Monitoring (extended) ────────────────────────────────
+  {id:1001, specimen:'Blood', category:'Drug Monitoring', name:'Metformin (Plasma)',              unit:'μg/mL',  low:0.1,  high:2.0,  description:'Biguanide diabetes drug; toxicity causes lactic acidosis'},
+  {id:1002, specimen:'Blood', category:'Drug Monitoring', name:'Sulfasalazine (Plasma)',          unit:'μg/mL',  low:0,    high:50,   description:'IBD and RA drug; monitor for GI and hematological toxicity'},
+  {id:1003, specimen:'Blood', category:'Drug Monitoring', name:'Azathioprine (6-MP Metabolites)', unit:'pmol/8×10⁸ RBC',low:230,high:450,description:'Thiopurine metabolites; IBD and autoimmune disease TDM'},
+  {id:1004, specimen:'Blood', category:'Drug Monitoring', name:'Infliximab (Trough Level)',       unit:'μg/mL',  low:3,    high:7,    description:'Anti-TNF biologic trough; predicts mucosal healing in IBD'},
+  {id:1005, specimen:'Blood', category:'Drug Monitoring', name:'Adalimumab (Trough Level)',       unit:'μg/mL',  low:5,    high:12,   description:'Anti-TNF biologic trough level; guides dose optimization'},
+  {id:1006, specimen:'Blood', category:'Drug Monitoring', name:'Vedolizumab (Trough)',            unit:'μg/mL',  low:10,   high:40,   description:'Gut-selective integrin inhibitor; IBD biologic TDM'},
+  {id:1007, specimen:'Blood', category:'Drug Monitoring', name:'Ustekinumab (Trough)',            unit:'μg/mL',  low:1,    high:5,    description:'IL-12/23 inhibitor; IBD and psoriasis therapeutic monitoring'},
+  {id:1008, specimen:'Blood', category:'Drug Monitoring', name:'Clozapine (Plasma)',              unit:'ng/mL',  low:250,  high:600,  description:'Antipsychotic TDM; agranulocytosis risk requires WBC monitoring'},
+  {id:1009, specimen:'Blood', category:'Drug Monitoring', name:'Risperidone + Active Metabolite', unit:'ng/mL',  low:20,   high:60,   description:'Antipsychotic combined level; therapeutic monitoring range'},
+  {id:1010, specimen:'Blood', category:'Drug Monitoring', name:'Olanzapine (Plasma)',             unit:'ng/mL',  low:20,   high:80,   description:'Atypical antipsychotic; metabolic side effects monitoring'},
+
+  // ── Gastrointestinal (extended) ───────────────────────────────
+  {id:1011, specimen:'Blood', category:'Gastrointestinal', name:'Calprotectin (Serum)',           unit:'μg/L',   low:0,    high:100,  description:'Neutrophil marker; elevated in systemic and gut inflammation'},
+  {id:1012, specimen:'Blood', category:'Gastrointestinal', name:'Lactoferrin (Serum)',            unit:'μg/L',   low:0,    high:3500, description:'Antimicrobial iron-binding protein; acute phase reactant'},
+  {id:1013, specimen:'Stool', category:'Gastrointestinal', name:'Stool Pancreatic Lipase',       unit:'U/g',    low:0,    high:7500, description:'Stool lipase; marker of exocrine pancreatic insufficiency'},
+  {id:1014, specimen:'Stool', category:'Gastrointestinal', name:'Stool H. pylori PCR',            unit:'',       low:0,    high:0,    description:'Molecular detection of H. pylori and antibiotic resistance genes'},
+  {id:1015, specimen:'Blood', category:'Gastrointestinal', name:'Intestinal Alkaline Phosphatase',unit:'U/L',    low:0,    high:4,    description:'Gut ALP isoenzyme; protective role in gut microbiome regulation'},
+
+  // ── Neurological Markers (extended) ──────────────────────────
+  {id:1016, specimen:'Blood', category:'Neurological Markers', name:'Alpha-Synuclein (Plasma)',   unit:'pg/mL',  low:0,    high:50,   description:'Misfolded protein; Parkinson disease and Lewy body dementia'},
+  {id:1017, specimen:'Blood', category:'Neurological Markers', name:'Prion Protein (PrP) Screen', unit:'',       low:0,    high:0,    description:'PrP scrapie screening; Creutzfeldt-Jakob disease workup'},
+  {id:1018, specimen:'Blood', category:'Neurological Markers', name:'NMDA Receptor Antibody',     unit:'',       low:0,    high:0,    description:'Anti-NMDAR encephalitis; young females with behavioral changes'},
+  {id:1019, specimen:'Blood', category:'Neurological Markers', name:'Anti-AMPA Receptor Ab',      unit:'',       low:0,    high:0,    description:'AMPA receptor encephalitis; limbic symptoms and frequent relapses'},
+  {id:1020, specimen:'Blood', category:'Neurological Markers', name:'Anti-GABA-B Receptor Ab',    unit:'',       low:0,    high:0,    description:'GABA-B encephalitis; refractory seizures and lung cancer association'},
+  {id:1021, specimen:'Blood', category:'Neurological Markers', name:'Anti-DPPX Antibody',         unit:'',       low:0,    high:0,    description:'Dipeptidyl-peptidase-like protein 6 Ab; hyperekplexia and encephalitis'},
+  {id:1022, specimen:'Blood', category:'Neurological Markers', name:'Anti-IgLON5 Antibody',       unit:'',       low:0,    high:0,    description:'Sleep disorder with tauopathy and brainstem involvement'},
+  {id:1023, specimen:'CSF',   category:'Neurological Markers', name:'RT-QuIC (Prion Assay)',       unit:'',       low:0,    high:0,    description:'Real-time quaking-induced conversion; CJD confirmatory test'},
+
+  // ── Oncology & Hematology (extended) ─────────────────────────
+  {id:1024, specimen:'Blood', category:'Oncology & Hematology', name:'NPM1 Mutation (AML)',       unit:'',       low:0,    high:0,    description:'Favorable AML mutation; found in ~30% of adult AML cases'},
+  {id:1025, specimen:'Blood', category:'Oncology & Hematology', name:'FLT3 ITD Mutation (AML)',   unit:'%',      low:0,    high:0,    description:'Poor prognosis AML; internal tandem duplication of FLT3'},
+  {id:1026, specimen:'Blood', category:'Oncology & Hematology', name:'IDH1/IDH2 Mutation',        unit:'',       low:0,    high:0,    description:'AML and glioma mutation; targetable by IDH inhibitors'},
+  {id:1027, specimen:'Blood', category:'Oncology & Hematology', name:'TP53 Mutation (Liquid Bx)', unit:'%',      low:0,    high:0,    description:'Tumor suppressor; poor prognosis in CLL, AML and solid tumors'},
+  {id:1028, specimen:'Blood', category:'Oncology & Hematology', name:'Immunophenotype (Flow)',     unit:'',       low:0,    high:0,    description:'Flow cytometry panel; lymphoma and leukemia classification'},
+  {id:1029, specimen:'Blood', category:'Oncology & Hematology', name:'Erythropoietin (Tumor EPO)', unit:'mIU/mL',low:4,   high:26,   description:'EPO in polycythemia vera is suppressed; paraneoplastic elevation'},
+  {id:1030, specimen:'Blood', category:'Oncology & Hematology', name:'Bone Marrow Cellularity',   unit:'%',      low:30,   high:70,   description:'Age-adjusted bone marrow cellularity; aplasia vs. hyperplasia'},
+
+  // ── Endocrinology & Metabolism (extended) ─────────────────────
+  {id:1031, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Klotho (Anti-aging)',    unit:'pg/mL',  low:312,  high:1130, description:'Anti-aging hormone; declines with CKD, aging and vitamin D deficiency'},
+  {id:1032, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Fibroblast GF-21 (FGF21)',unit:'pg/mL', low:0,   high:278,  description:'Hepatokine; elevated in NAFLD, obesity and mitochondrial disease'},
+  {id:1033, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Angiopoietin-like 3',   unit:'ng/mL',  low:0,    high:120,  description:'ANGPTL3; regulates TG and HDL; loss-of-function = low LDL'},
+  {id:1034, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Angiopoietin-like 4',   unit:'ng/mL',  low:0,    high:80,   description:'ANGPTL4; LPL inhibitor; elevated in fasting and diabetes'},
+  {id:1035, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Fetuin-A',              unit:'g/L',    low:0.4,  high:0.8,  description:'Liver-derived inhibitor; vascular calcification protector'},
+  {id:1036, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Osteocalcin (Hormonal)', unit:'ng/mL',  low:11,   high:48,   description:'Bone hormone regulating insulin secretion and energy metabolism'},
+  {id:1037, specimen:'Blood', category:'Endocrinology & Metabolism', name:'VEGF-A (Serum)',        unit:'pg/mL',  low:31,   high:86,   description:'Vascular growth factor; elevated in hypoxia, tumors and diabetic retinopathy'},
+  {id:1038, specimen:'Urine', category:'Endocrinology & Metabolism', name:'Normetanephrine (Urine)',unit:'μg/24h', low:0,   high:340,  description:'Norepinephrine metabolite; pheochromocytoma screening'},
+  {id:1039, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Plasma Metanephrine',   unit:'pmol/L', low:0,    high:90,   description:'Free metanephrine; best screening test for pheochromocytoma'},
+  {id:1040, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Plasma Normetanephrine', unit:'pmol/L',low:0,   high:180,  description:'Free normetanephrine; pheochromocytoma and paraganglioma'},
+
+  // ── Dermatology (extended) ────────────────────────────────────
+  {id:1041, specimen:'Blood', category:'Dermatology & Skin', name:'Anti-Envoplakin/Periplakin Ab', unit:'U/mL',   low:0,    high:7,    description:'Paraneoplastic pemphigus antibody; tumor-associated blistering'},
+  {id:1042, specimen:'Blood', category:'Dermatology & Skin', name:'Anti-Laminin 332 Ab',           unit:'U/mL',   low:0,    high:7,    description:'Mucous membrane pemphigoid antibody; ocular involvement risk'},
+  {id:1043, specimen:'Blood', category:'Dermatology & Skin', name:'Sclerostin (Systemic Sclerosis)',unit:'pmol/L', low:0,   high:60,   description:'Wnt inhibitor; elevated in scleroderma and osteoporosis'},
+  {id:1044, specimen:'Blood', category:'Dermatology & Skin', name:'Skin Prick Test (SPT) Wheal',   unit:'mm',     low:0,    high:3,    description:'Cutaneous immediate hypersensitivity; wheal >3mm positive'},
+  {id:1045, specimen:'Blood', category:'Dermatology & Skin', name:'Melanoma Biomarker (BRAF V600E)',unit:'',       low:0,    high:0,    description:'BRAF mutation in melanoma; targetable by vemurafenib'},
+
+  // ── Ophthalmology (extended) ──────────────────────────────────
+  {id:1046, specimen:'Blood', category:'Ophthalmology', name:'Carbonic Anhydrase Ab (Uveitis)',   unit:'',        low:0,    high:0,    description:'Autoimmune marker in uveitis; associated with MS and IBD'},
+  {id:1047, specimen:'Blood', category:'Ophthalmology', name:'Anti-Bestrophin Antibody',          unit:'',        low:0,    high:0,    description:'Best vitelliform macular dystrophy marker; chloride channel Ab'},
+  {id:1048, specimen:'Blood', category:'Ophthalmology', name:'IgG4 (Orbital Disease)',            unit:'mg/dL',   low:1,    high:291,  description:'Elevated in IgG4-related orbital disease and dacryoadenitis'},
+  {id:1049, specimen:'Blood', category:'Ophthalmology', name:'HLA-A29 (Birdshot Chorioretinopathy)',unit:'',      low:0,    high:0,    description:'Genetic marker strongly associated with birdshot chorioretinopathy'},
+  {id:1050, specimen:'Blood', category:'Ophthalmology', name:'Toxoplasma Retinochoroiditis IgG',  unit:'IU/mL',  low:0,    high:8,    description:'Ocular toxoplasmosis; most common cause of posterior uveitis'},
+
+  // ── Bone Markers (extended) ───────────────────────────────────
+  {id:1051, specimen:'Blood', category:'Bone Markers', name:'Intact PTH (iPTH)',                  unit:'pg/mL',  low:15,   high:65,   description:'Intact PTH; regulates calcium, phosphorus and bone remodeling'},
+  {id:1052, specimen:'Blood', category:'Bone Markers', name:'PTH-rP (PTH-related Peptide)',       unit:'pmol/L', low:0,    high:1.3,  description:'PTHrP; elevated in hypercalcemia of malignancy'},
+  {id:1053, specimen:'Blood', category:'Bone Markers', name:'24-hour Urine Calcium',              unit:'mg/24h', low:100,  high:300,  description:'Total urinary calcium; elevated in hyperparathyroidism and VDT'},
+  {id:1054, specimen:'Blood', category:'Bone Markers', name:'Fibroblast GF-23 (FGF-23 Bone)',    unit:'RU/mL',  low:0,    high:180,  description:'Phosphate regulator made by osteocytes; elevated in CKD and XLH'},
+  {id:1055, specimen:'Blood', category:'Bone Markers', name:'Bone Collagen Crosslinks (u-CTx)',   unit:'ng/mmol creat',low:52,high:327,description:'Urinary CTx; bone resorption in postmenopausal osteoporosis'},
+
+  // ── Metabolic & Genetic (extended) ───────────────────────────
+  {id:1056, specimen:'Blood', category:'Metabolic & Genetic', name:'Urine Mucopolysaccharides (GAG)',unit:'mg/g creat',low:0,high:100,description:'Glycosaminoglycans screen for MPS (Hunter, Hurler, Morquio)'},
+  {id:1057, specimen:'Blood', category:'Metabolic & Genetic', name:'Oligosaccharide Screen (Urine)',unit:'',       low:0,    high:0,    description:'Urine oligosaccharide pattern; glycoprotein storage diseases'},
+  {id:1058, specimen:'Blood', category:'Metabolic & Genetic', name:'Phytanic Acid',               unit:'μmol/L',  low:0,    high:10,   description:'Elevated in Refsum disease; peroxisomal fatty acid oxidation defect'},
+  {id:1059, specimen:'Blood', category:'Metabolic & Genetic', name:'Pristanic Acid',              unit:'μmol/L',  low:0,    high:2,    description:'Branched-chain fatty acid; peroxisomal biogenesis disorder marker'},
+  {id:1060, specimen:'Blood', category:'Metabolic & Genetic', name:'Succinylacetone (Tyrosinemia)',unit:'μmol/L', low:0,    high:0.3,  description:'Pathognomonic for tyrosinemia type 1; NTBC monitoring'},
+
+  // ── Respiratory & Pulmonary (extended) ───────────────────────
+  {id:1061, specimen:'Blood', category:'Respiratory & Pulmonary', name:'Osteopontin (Pulmonary)',  unit:'ng/mL',  low:0,    high:66,   description:'Elevated in sarcoidosis, mesothelioma and IPF'},
+  {id:1062, specimen:'Blood', category:'Respiratory & Pulmonary', name:'Soluble CD163 (sCD163)',   unit:'μg/L',   low:400,  high:1200, description:'Macrophage activation; elevated in MAS, IPF and ARDS'},
+  {id:1063, specimen:'Blood', category:'Respiratory & Pulmonary', name:'Pleiotrophin (PTN)',        unit:'ng/mL',  low:0,    high:7.5,  description:'Heparin-binding growth factor; elevated in mesothelioma and NSCLC'},
+  {id:1064, specimen:'Blood', category:'Respiratory & Pulmonary', name:'HMGB1 (Alarmin)',          unit:'ng/mL',  low:0,    high:3,    description:'Damage-associated molecular pattern; elevated in ARDS and sepsis'},
+  {id:1065, specimen:'Blood', category:'Respiratory & Pulmonary', name:'Surfactant Protein A (SP-A)',unit:'ng/mL', low:0,   high:100,  description:'Innate immune protein; reduced in ARDS and surfactant deficiency'},
+
+  // ── Allergy (extended) ───────────────────────────────────────
+  {id:1066, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Aspergillus)', unit:'kU/L',  low:0,    high:0.35, description:'Aspergillus fumigatus IgE; allergic bronchopulmonary aspergillosis'},
+  {id:1067, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Alternaria)',   unit:'kU/L',  low:0,    high:0.35, description:'Mold allergen IgE; asthma severity and hospitalisation risk'},
+  {id:1068, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Birch Pollen)', unit:'kU/L', low:0,    high:0.35, description:'Birch Bet v 1 IgE; causes oral allergy syndrome with fruits'},
+  {id:1069, specimen:'Blood', category:'Allergy & Sensitivity', name:'Basophil Activation Test',    unit:'%',     low:0,    high:5,    description:'CD63/CD203c expression after allergen stimulation; functional allergy test'},
+  {id:1070, specimen:'Blood', category:'Allergy & Sensitivity', name:'Allergen-Specific IgG4',      unit:'mg/L',  low:0,    high:5,    description:'Blocking antibody; rises during successful immunotherapy'},
+
+  // ── Urinalysis (extended) ─────────────────────────────────────
+  {id:1071, specimen:'Urine', category:'Urinalysis', name:'Urine Glucose/Creatinine Ratio',       unit:'mg/g',   low:0,    high:15,   description:'Spot urine glucose corrected for creatinine concentration'},
+  {id:1072, specimen:'Urine', category:'Urinalysis', name:'Urine Electrolyte Panel',              unit:'mEq/L',  low:0,    high:0,    description:'Na, K, Cl, phosphate in urine; nephrology acid-base workup'},
+  {id:1073, specimen:'Urine', category:'Urinalysis', name:'Urine Urea Nitrogen (24h)',            unit:'g/24h',  low:12,   high:20,   description:'Urinary UN; dietary protein intake and nitrogen balance'},
+  {id:1074, specimen:'Urine', category:'Urinalysis', name:'Urine Protein Electrophoresis (UPEP)', unit:'',       low:0,    high:0,    description:'Separates urinary proteins; detects Bence Jones protein'},
+  {id:1075, specimen:'Urine', category:'Urinalysis', name:'Urine Immunofixation (UIFE)',          unit:'',       low:0,    high:0,    description:'Identifies monoclonal light chains; multiple myeloma diagnosis'},
+
+  // ── Stool & GI Tests (extended) ───────────────────────────────
+  {id:1076, specimen:'Stool', category:'Stool & GI Tests', name:'GI PCR Pathogen Panel',          unit:'',       low:0,    high:0,    description:'Multiplex PCR for 20+ bacterial, viral and parasitic pathogens'},
+  {id:1077, specimen:'Stool', category:'Stool & GI Tests', name:'Fecal Short-Chain Fatty Acids',  unit:'μmol/g', low:60,   high:140,  description:'SCFA (butyrate, propionate, acetate); gut microbiome health marker'},
+  {id:1078, specimen:'Stool', category:'Stool & GI Tests', name:'Stool Microbiome Alpha Diversity',unit:'Shannon',low:3.0, high:5.0, description:'Gut microbial diversity index; lower in dysbiosis and IBD'},
+  {id:1079, specimen:'Stool', category:'Stool & GI Tests', name:'Stool Bile Acid Composition',    unit:'%',      low:0,    high:0,    description:'Primary vs secondary bile acids; altered in bile acid diarrhea'},
+  {id:1080, specimen:'Stool', category:'Stool & GI Tests', name:'Stool Cryptosporidium Antigen',  unit:'',       low:0,    high:0,    description:'Rapid antigen test for Cryptosporidium parvum; waterborne parasite'},
+
+  // ── Semen Analysis (extended) ─────────────────────────────────
+  {id:1081, specimen:'Semen', category:'Semen Analysis', name:'Acrosome Integrity (%)',           unit:'%',      low:80,   high:100,  description:'Acrosome-intact sperm percentage; required for egg penetration'},
+  {id:1082, specimen:'Semen', category:'Semen Analysis', name:'Sperm Reactive Oxygen Species',    unit:'RLU',    low:0,    high:20,   description:'Sperm oxidative stress; elevated ROS causes DNA fragmentation'},
+  {id:1083, specimen:'Semen', category:'Semen Analysis', name:'Seminal Carnitine',                unit:'μmol/ejac',low:0.8,high:28,  description:'Epididymal function marker; low in epididymal obstruction'},
+  {id:1084, specimen:'Semen', category:'Semen Analysis', name:'Seminal Alpha-Glucosidase',        unit:'mU/ejac',low:11,  high:88,   description:'Epididymal function marker; low in obstructive azoospermia'},
+  {id:1085, specimen:'Semen', category:'Semen Analysis', name:'Seminal Citric Acid',              unit:'μmol/ejac',low:10, high:40,  description:'Prostate-derived; marker of prostate secretory function'},
+
+  // ── Synovial Fluid (extended) ─────────────────────────────────
+  {id:1086, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial Hyaluronic Acid',   unit:'mg/mL',  low:1,    high:4,    description:'Provides viscosity; markedly reduced in inflammatory arthritis'},
+  {id:1087, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial Lactic Acid',       unit:'mmol/L', low:1,    high:3,    description:'Elevated in septic arthritis; helps distinguish bacterial etiology'},
+  {id:1088, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial Complement (CH50)', unit:'%',      low:30,   high:70,   description:'Total complement in joint fluid; consumed in RA and lupus'},
+  {id:1089, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Apatite Crystal Screen',     unit:'',       low:0,    high:0,    description:'Basic calcium phosphate crystals; destructive arthropathy'},
+  {id:1090, specimen:'Joint Fluid', category:'Synovial Fluid', name:'Synovial Biopsy (Cell Types)',unit:'',      low:0,    high:0,    description:'Histological classification of synovitis; pauci/fibro/diffuse types'},
+
+  // ── Pleural & Peritoneal Fluid (extended) ─────────────────────
+  {id:1091, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural NT-proBNP', unit:'pg/mL', low:0,   high:1500, description:'Elevated in cardiac pleural effusion; helps distinguish cause'},
+  {id:1092, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural Mesothelin', unit:'nM',   low:0,    high:1.0,  description:'Pleural mesothelin; mesothelioma pleural effusion marker'},
+  {id:1093, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural Triglycerides',unit:'mg/dL',low:0, high:50,   description:'Elevated >110 in chylothorax from lymphatic disruption'},
+  {id:1094, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Pleural Creatinine', unit:'mg/dL', low:0,   high:1.5,  description:'Elevated in urinothorax (urine in pleural space)'},
+  {id:1095, specimen:'Body Fluid', category:'Pleural & Peritoneal Fluid', name:'Peritoneal CEA',    unit:'ng/mL',  low:0,    high:5,    description:'CEA in ascitic fluid; elevated in GI malignancy with peritoneal spread'},
+
+  // ── Cardiac (extended additional) ────────────────────────────
+  {id:1096, specimen:'Blood', category:'Cardiac Markers', name:'Aldosterone/Renin Ratio (ARR)',   unit:'ratio',  low:0,    high:30,   description:'Screening ratio for primary aldosteronism; >30 warrants workup'},
+  {id:1097, specimen:'Blood', category:'Cardiac Markers', name:'Galectin-3 (Cardiac Fibrosis)',   unit:'ng/mL',  low:0,    high:17.8, description:'Macrophage-derived lectin; cardiac fibrosis and HF prognosis'},
+  {id:1098, specimen:'Blood', category:'Cardiac Markers', name:'Suppression of Tumorigenicity 2', unit:'ng/mL',  low:0,    high:35,   description:'sST2; decoy receptor for IL-33; prognostic in heart failure'},
+  {id:1099, specimen:'Blood', category:'Cardiac Markers', name:'Myeloperoxidase (MPO Cardiac)',   unit:'pmol/L', low:0,    high:470,  description:'Oxidative enzyme; unstable plaque and CV inflammation marker'},
+  {id:1100, specimen:'Blood', category:'Cardiac Markers', name:'GDF-15 Cardiac Risk',             unit:'pg/mL',  low:0,    high:1200, description:'Growth differentiation factor-15; AF, HF and mortality risk'},
 ];
 
 // Notify app that data is ready
