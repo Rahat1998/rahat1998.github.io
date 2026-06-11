@@ -19,14 +19,7 @@ window.APP_CONFIG = {
     storageBucket:     "medlab-db.firebasestorage.app",
     messagingSenderId: "310991760752",
     appId:             "1:310991760752:web:15d7e49ef4a84f8a78b3b5"
-  },
-  adsense: {
-    pubId:  "ca-pub-1800215132568729",
-    slots:  {
-      top:       "9791152733",
-      mid:       "1114282447",
-      preFooter: "7320598149"
-    }
+  }
   }
 };
 
