@@ -20,7 +20,6 @@ window.APP_CONFIG = {
     messagingSenderId: "310991760752",
     appId:             "1:310991760752:web:15d7e49ef4a84f8a78b3b5"
   }
-  }
 };
 
 window._configReady = true;
