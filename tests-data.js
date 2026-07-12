@@ -4,7 +4,7 @@
    IMPORTANT: Keep this file in the same folder as index.html
    ============================================================ */
 
-window.DATA_VERSION = 8;
+window.DATA_VERSION = 9;
 
 window.CAT_META = {
   'Complete Blood Count':         {accent:'#E53935',icon:'🩸'},
@@ -1682,6 +1682,124 @@ window.ALL_TESTS = [
   {id:1298, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Platelet/Lymphocyte Ratio',unit:'ratio',low:50, high:150,  description:'PLR; >200 associated with poor prognosis in cancer and inflammation'},
   {id:1299, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Monocyte/Lymphocyte Ratio',unit:'ratio',low:0.1,high:0.4, description:'MLR; elevated in systemic inflammation and malignancy workup'},
   {id:1300, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Lymphocyte/CRP Ratio',   unit:'ratio',  low:10,  high:50,   description:'LCR; lower values indicate higher inflammation burden in ICU patients'},
+
+  // ── Cardiac Markers (expanded) ──────────────────────────────
+  {id:1301, specimen:'Blood', category:'Cardiac Markers', name:'NT-proBNP',                    unit:'pg/mL',  low:0,    high:125,  description:'N-terminal pro b-type natriuretic peptide; heart failure marker'},
+  {id:1302, specimen:'Blood', category:'Cardiac Markers', name:'Troponin T (High Sensitivity)', unit:'ng/L',   low:0,    high:14,   description:'Highly specific marker of myocardial injury'},
+  {id:1303, specimen:'Blood', category:'Cardiac Markers', name:'Myoglobin',                     unit:'ng/mL',  low:25,   high:72,   description:'Early but non-specific marker of muscle or cardiac damage'},
+  {id:1304, specimen:'Blood', category:'Cardiac Markers', name:'CK-MB',                         unit:'ng/mL',  low:0,    high:5,    description:'Creatine kinase isoenzyme relatively specific to heart muscle'},
+  {id:1305, specimen:'Blood', category:'Cardiac Markers', name:'Lipoprotein(a)',                unit:'mg/dL',  low:0,    high:30,   description:'Genetically determined independent cardiovascular risk factor'},
+  {id:1306, specimen:'Blood', category:'Cardiac Markers', name:'Homocysteine',                  unit:'μmol/L', low:5,    high:15,   description:'Amino acid linked to cardiovascular and thrombotic risk'},
+
+  // ── Vitamins & Minerals (expanded) ──────────────────────────
+  {id:1307, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin D, 25-Hydroxy',      unit:'ng/mL',  low:30,   high:100,  description:'Best indicator of overall vitamin D status'},
+  {id:1308, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin B12',                unit:'pg/mL',  low:200,  high:900,  description:'Essential for nerve function and red blood cell formation'},
+  {id:1309, specimen:'Blood', category:'Vitamins & Minerals', name:'Folate (Serum)',             unit:'ng/mL',  low:2.7,  high:17.0, description:'Water-soluble B vitamin needed for DNA synthesis'},
+  {id:1310, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin A (Retinol)',        unit:'μg/dL',  low:20,   high:80,   description:'Fat-soluble vitamin important for vision and immunity'},
+  {id:1311, specimen:'Blood', category:'Vitamins & Minerals', name:'Vitamin E',                  unit:'mg/L',   low:5.5,  high:17.0, description:'Antioxidant vitamin protecting cell membranes'},
+  {id:1312, specimen:'Blood', category:'Vitamins & Minerals', name:'Zinc',                       unit:'μg/dL',  low:60,   high:120,  description:'Trace mineral important for immune function and wound healing'},
+  {id:1313, specimen:'Blood', category:'Vitamins & Minerals', name:'Copper',                     unit:'μg/dL',  low:70,   high:140,  description:'Trace mineral involved in iron metabolism and connective tissue'},
+  {id:1314, specimen:'Blood', category:'Vitamins & Minerals', name:'Selenium',                   unit:'μg/L',   low:70,   high:150,  description:'Trace mineral with antioxidant and thyroid-supporting roles'},
+  {id:1315, specimen:'Blood', category:'Vitamins & Minerals', name:'Magnesium',                  unit:'mg/dL',  low:1.7,  high:2.2,  description:'Mineral essential for muscle, nerve, and heart function'},
+
+  // ── Hormones (expanded) ─────────────────────────────────────
+  {id:1316, specimen:'Blood', category:'Hormones', name:'Cortisol (AM)',                unit:'μg/dL',  low:6.2,  high:19.4, description:'Stress hormone; measured in morning due to diurnal variation'},
+  {id:1317, specimen:'Blood', category:'Hormones', name:'ACTH',                         unit:'pg/mL',  low:7.2,  high:63.3, description:'Adrenocorticotropic hormone; regulates cortisol production'},
+  {id:1318, specimen:'Blood', category:'Hormones', name:'Prolactin',                    unit:'ng/mL',  low:4.0,  high:23.0, description:'Hormone stimulating lactation; elevated in pituitary tumors'},
+  {id:1319, specimen:'Blood', category:'Hormones', name:'Growth Hormone (GH)',          unit:'ng/mL',  low:0,    high:5,    description:'Regulates growth and metabolism; pulsatile secretion'},
+  {id:1320, specimen:'Blood', category:'Hormones', name:'IGF-1',                        unit:'ng/mL',  low:100,  high:300,  description:'Insulin-like growth factor; reflects average GH secretion'},
+  {id:1321, specimen:'Blood', category:'Hormones', name:'Aldosterone',                  unit:'ng/dL',  low:4,    high:31,   description:'Regulates sodium and potassium balance and blood pressure'},
+  {id:1322, specimen:'Blood', category:'Hormones', name:'Renin (Plasma)',               unit:'ng/mL/h',low:0.6,  high:4.3,  description:'Enzyme regulating blood pressure via the renin-angiotensin system'},
+  {id:1323, specimen:'Blood', category:'Hormones', name:'Testosterone, Total (Male)',   unit:'ng/dL',  low:264,  high:916,  description:'Primary male sex hormone'},
+  {id:1324, specimen:'Blood', category:'Hormones', name:'Testosterone, Total (Female)', unit:'ng/dL',  low:8,    high:60,   description:'Present in smaller amounts in females; ovarian and adrenal origin'},
+  {id:1325, specimen:'Blood', category:'Hormones', name:'Estradiol (Female, Follicular)',unit:'pg/mL', low:19,   high:144,  description:'Primary estrogen; varies through menstrual cycle'},
+  {id:1326, specimen:'Blood', category:'Hormones', name:'Progesterone (Luteal Phase)',  unit:'ng/mL',  low:1.8,  high:24,   description:'Prepares uterine lining for pregnancy; peaks mid-luteal phase'},
+
+  // ── Thyroid Function (expanded) ─────────────────────────────
+  {id:1327, specimen:'Blood', category:'Thyroid Function', name:'TSH',                  unit:'μIU/mL', low:0.4,  high:4.0,  description:'Thyroid-stimulating hormone; primary thyroid screening test'},
+  {id:1328, specimen:'Blood', category:'Thyroid Function', name:'Free T4',              unit:'ng/dL',  low:0.8,  high:1.8,  description:'Unbound thyroxine; active thyroid hormone'},
+  {id:1329, specimen:'Blood', category:'Thyroid Function', name:'Free T3',              unit:'pg/mL',  low:2.3,  high:4.2,  description:'Unbound triiodothyronine; most active thyroid hormone'},
+  {id:1330, specimen:'Blood', category:'Thyroid Function', name:'Thyroglobulin',        unit:'ng/mL',  low:1.4,  high:29.2, description:'Thyroid protein; tumor marker after thyroidectomy'},
+  {id:1331, specimen:'Blood', category:'Thyroid Function', name:'Anti-TPO Antibody',    unit:'IU/mL',  low:0,    high:34,   description:'Thyroid peroxidase antibody; marker of autoimmune thyroiditis'},
+
+  // ── Autoimmune & Inflammation (expanded) ─────────────────────
+  {id:1332, specimen:'Blood', category:'Autoimmune & Inflammation', name:'ANA Titer',        unit:'titer',  low:0,    high:40,   description:'Antinuclear antibody; screening test for autoimmune disease'},
+  {id:1333, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Rheumatoid Factor',unit:'IU/mL',  low:0,    high:14,   description:'Antibody associated with rheumatoid arthritis'},
+  {id:1334, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Anti-CCP',         unit:'U/mL',   low:0,    high:20,   description:'Highly specific antibody for rheumatoid arthritis'},
+  {id:1335, specimen:'Blood', category:'Autoimmune & Inflammation', name:'ESR (Westergren)', unit:'mm/hr',  low:0,    high:20,   description:'Erythrocyte sedimentation rate; nonspecific inflammation marker'},
+  {id:1336, specimen:'Blood', category:'Autoimmune & Inflammation', name:'C-Reactive Protein',unit:'mg/L',  low:0,    high:3.0,  description:'Acute-phase protein rising with inflammation or infection'},
+  {id:1337, specimen:'Blood', category:'Autoimmune & Inflammation', name:'Complement C4',    unit:'mg/dL',  low:16,   high:38,   description:'Complement protein; low in active lupus and immune complex disease'},
+
+  // ── Infectious Disease (expanded) ───────────────────────────
+  {id:1338, specimen:'Blood', category:'Infectious Disease', name:'HIV Ag/Ab Combo',   unit:'',       low:0,    high:0,    description:'Fourth-generation HIV screening test detecting antigen and antibody'},
+  {id:1339, specimen:'Blood', category:'Infectious Disease', name:'Hepatitis B Surface Antigen', unit:'', low:0,  high:0,    description:'Marker of active hepatitis B infection'},
+  {id:1340, specimen:'Blood', category:'Infectious Disease', name:'Hepatitis C Antibody', unit:'',     low:0,    high:0,    description:'Screening test for prior or current hepatitis C exposure'},
+  {id:1341, specimen:'Blood', category:'Infectious Disease', name:'EBV VCA IgM',          unit:'',     low:0,    high:0,    description:'Marker of acute Epstein-Barr virus (mononucleosis) infection'},
+  {id:1342, specimen:'Blood', category:'Infectious Disease', name:'Procalcitonin',        unit:'ng/mL',low:0,    high:0.1,  description:'Rises with bacterial infection; used to guide antibiotic therapy'},
+  {id:1343, specimen:'Blood', category:'Infectious Disease', name:'Malaria Antigen',      unit:'',     low:0,    high:0,    description:'Rapid diagnostic test for Plasmodium infection'},
+
+  // ── Tumor Markers (expanded) ────────────────────────────────
+  {id:1344, specimen:'Blood', category:'Tumor Markers', name:'PSA, Total',        unit:'ng/mL',  low:0,    high:4.0,  description:'Prostate-specific antigen; prostate cancer screening'},
+  {id:1345, specimen:'Blood', category:'Tumor Markers', name:'CA 125',            unit:'U/mL',   low:0,    high:35,   description:'Elevated in ovarian cancer and some benign conditions'},
+  {id:1346, specimen:'Blood', category:'Tumor Markers', name:'CA 19-9',           unit:'U/mL',   low:0,    high:37,   description:'Marker used mainly for pancreatic and biliary cancers'},
+  {id:1347, specimen:'Blood', category:'Tumor Markers', name:'CEA',               unit:'ng/mL',  low:0,    high:3.0,  description:'Carcinoembryonic antigen; monitored in colorectal cancer'},
+  {id:1348, specimen:'Blood', category:'Tumor Markers', name:'AFP (Tumor Marker)',unit:'ng/mL',  low:0,    high:10,   description:'Alpha-fetoprotein; elevated in liver cancer and germ cell tumors'},
+  {id:1349, specimen:'Blood', category:'Tumor Markers', name:'CA 15-3',           unit:'U/mL',   low:0,    high:30,   description:'Used to monitor treatment response in breast cancer'},
+
+  // ── Bone Markers (expanded) ─────────────────────────────────
+  {id:1350, specimen:'Blood', category:'Bone Markers', name:'Calcium, Total',      unit:'mg/dL',  low:8.5,  high:10.5, description:'Regulates muscle, nerve, and bone health'},
+  {id:1351, specimen:'Blood', category:'Bone Markers', name:'Calcium, Ionized',    unit:'mg/dL',  low:4.6,  high:5.3,  description:'Biologically active fraction of blood calcium'},
+  {id:1352, specimen:'Blood', category:'Bone Markers', name:'Phosphorus',          unit:'mg/dL',  low:2.5,  high:4.5,  description:'Mineral important for bone structure and energy metabolism'},
+  {id:1353, specimen:'Blood', category:'Bone Markers', name:'Parathyroid Hormone', unit:'pg/mL',  low:15,   high:65,   description:'Regulates blood calcium via bone, kidney, and gut'},
+  {id:1354, specimen:'Blood', category:'Bone Markers', name:'Osteocalcin',         unit:'ng/mL',  low:11,   high:43,   description:'Marker of bone formation activity'},
+  {id:1355, specimen:'Blood', category:'Bone Markers', name:'CTX (Bone Resorption)',unit:'ng/mL', low:0.1,  high:0.7,  description:'C-telopeptide; marker of bone resorption/turnover'},
+
+  // ── Reproductive & Fertility (expanded) ─────────────────────
+  {id:1356, specimen:'Blood', category:'Reproductive & Fertility', name:'FSH (Female, Follicular)', unit:'mIU/mL', low:3.5, high:12.5, description:'Follicle-stimulating hormone; regulates ovarian follicle growth'},
+  {id:1357, specimen:'Blood', category:'Reproductive & Fertility', name:'LH (Female, Follicular)',  unit:'mIU/mL', low:2.4, high:12.6, description:'Luteinizing hormone; triggers ovulation at mid-cycle surge'},
+  {id:1358, specimen:'Blood', category:'Reproductive & Fertility', name:'AMH (Anti-Müllerian Hormone)', unit:'ng/mL', low:1.0, high:4.0, description:'Reflects ovarian reserve; used in fertility assessment'},
+  {id:1359, specimen:'Blood', category:'Reproductive & Fertility', name:'hCG, Quantitative',  unit:'mIU/mL', low:0,   high:5,    description:'Human chorionic gonadotropin; confirms and dates early pregnancy'},
+  {id:1360, specimen:'Blood', category:'Reproductive & Fertility', name:'SHBG',               unit:'nmol/L', low:18,  high:114,  description:'Sex hormone-binding globulin; carries testosterone and estrogen'},
+
+  // ── Allergy & Sensitivity (expanded) ────────────────────────
+  {id:1361, specimen:'Blood', category:'Allergy & Sensitivity', name:'Total IgE',          unit:'IU/mL', low:0,    high:100,  description:'Overall antibody level associated with allergic conditions'},
+  {id:1362, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Peanut)', unit:'kU/L', low:0,   high:0.35, description:'Allergen-specific antibody used to confirm peanut allergy'},
+  {id:1363, specimen:'Blood', category:'Allergy & Sensitivity', name:'Specific IgE (Dust Mite)', unit:'kU/L', low:0, high:0.35, description:'Allergen-specific antibody for house dust mite sensitivity'},
+  {id:1364, specimen:'Blood', category:'Allergy & Sensitivity', name:'Tryptase',           unit:'ng/mL', low:0,    high:11.4, description:'Mast cell marker; elevated in anaphylaxis and mastocytosis'},
+
+  // ── Neurological Markers (expanded) ─────────────────────────
+  {id:1365, specimen:'Blood', category:'Neurological Markers', name:'Ammonia',        unit:'μmol/L', low:11,  high:32,   description:'Elevated in hepatic encephalopathy and urea cycle disorders'},
+  {id:1366, specimen:'CSF',   category:'Neurological Markers', name:'CSF Protein',    unit:'mg/dL',  low:15,  high:45,   description:'Elevated in meningitis, tumors, and Guillain-Barré syndrome'},
+  {id:1367, specimen:'CSF',   category:'Neurological Markers', name:'CSF Glucose',    unit:'mg/dL',  low:40,  high:70,   description:'Low in bacterial meningitis; normal in viral meningitis'},
+  {id:1368, specimen:'Blood', category:'Neurological Markers', name:'NSE (Neuron-Specific Enolase)', unit:'ng/mL', low:0, high:16.3, description:'Marker used in neuroendocrine tumors and neuronal injury'},
+
+  // ── Respiratory & Pulmonary (expanded) ──────────────────────
+  {id:1369, specimen:'Blood', category:'Respiratory & Pulmonary', name:'Alpha-1 Antitrypsin', unit:'mg/dL', low:100, high:200, description:'Deficiency associated with early-onset emphysema and liver disease'},
+  {id:1370, specimen:'Blood', category:'Respiratory & Pulmonary', name:'D-Dimer',             unit:'μg/mL FEU', low:0, high:0.5, description:'Fibrin degradation product; used to rule out venous thromboembolism'},
+
+  // ── Dermatology & Skin (expanded) ───────────────────────────
+  {id:1371, specimen:'Blood', category:'Dermatology & Skin', name:'IgE (Atopic Dermatitis)', unit:'IU/mL', low:0, high:150, description:'Often elevated in patients with atopic dermatitis'},
+  {id:1372, specimen:'Blood', category:'Dermatology & Skin', name:'Zinc (Dermatologic)',    unit:'μg/dL', low:60, high:120, description:'Deficiency associated with delayed wound healing and dermatitis'},
+
+  // ── Gastrointestinal (expanded) ─────────────────────────────
+  {id:1373, specimen:'Blood', category:'Gastrointestinal', name:'Tissue Transglutaminase IgA', unit:'U/mL', low:0, high:4,  description:'Primary screening antibody for celiac disease'},
+  {id:1374, specimen:'Stool', category:'Gastrointestinal', name:'Fecal Calprotectin',          unit:'μg/g', low:0, high:50, description:'Marker distinguishing inflammatory bowel disease from IBS'},
+  {id:1375, specimen:'Blood', category:'Gastrointestinal', name:'Gastrin',                     unit:'pg/mL', low:0, high:100,description:'Elevated in Zollinger-Ellison syndrome and atrophic gastritis'},
+
+  // ── Endocrinology & Metabolism (expanded) ───────────────────
+  {id:1376, specimen:'Blood', category:'Endocrinology & Metabolism', name:'HbA1c',           unit:'%',     low:4.0, high:5.6,  description:'Reflects average blood glucose over the past 2-3 months'},
+  {id:1377, specimen:'Blood', category:'Endocrinology & Metabolism', name:'C-Peptide',        unit:'ng/mL', low:0.8, high:3.1,  description:'Reflects endogenous insulin production'},
+  {id:1378, specimen:'Blood', category:'Endocrinology & Metabolism', name:'Fructosamine',     unit:'μmol/L',low:200, high:285,  description:'Reflects average glucose over the past 2-3 weeks'},
+
+  // ── Oncology & Hematology (expanded) ─────────────────────────
+  {id:1379, specimen:'Blood', category:'Oncology & Hematology', name:'Reticulocyte Count',  unit:'%',     low:0.5, high:2.5,  description:'Measures new red blood cell production by the bone marrow'},
+  {id:1380, specimen:'Blood', category:'Oncology & Hematology', name:'Haptoglobin',          unit:'mg/dL', low:30,  high:200,  description:'Low in hemolytic anemia due to binding of free hemoglobin'},
+  {id:1381, specimen:'Blood', category:'Oncology & Hematology', name:'Beta-2 Microglobulin', unit:'mg/L',  low:0.7, high:1.8,  description:'Prognostic marker in multiple myeloma and lymphoma'},
+
+  // ── Drug Monitoring (expanded) ───────────────────────────────
+  {id:1382, specimen:'Blood', category:'Drug Monitoring', name:'Lithium Level',     unit:'mmol/L', low:0.6, high:1.2,  description:'Therapeutic monitoring for bipolar disorder treatment'},
+  {id:1383, specimen:'Blood', category:'Drug Monitoring', name:'Vancomycin Trough', unit:'μg/mL',  low:10,  high:20,   description:'Trough level for dosing adjustment and toxicity avoidance'},
+  {id:1384, specimen:'Blood', category:'Drug Monitoring', name:'Tacrolimus Trough', unit:'ng/mL',  low:5,   high:15,   description:'Immunosuppressant level monitored in transplant recipients'},
 ];
 
 // Notify app that data is ready

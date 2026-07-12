@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Terms and Conditions — MedLab Reference</title>
+<meta name="description" content="Rules and guidelines for using the MedLab Reference website."/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fa;--surface:#fff;--surface2:#f1f3f5;
+  --border:#dee2e6;--text:#212529;--text2:#495057;--muted:#868e96;
+  --primary:#6200ee;--primary-lt:#ede7f6;--primary-dk:#4a00b4;
+  --secondary:#03dac6;--secondary-lt:#e0f7fa;
+  --green:#2e7d32;--red:#c62828;--amber:#f57f17;
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+  --radius:10px;--radius-sm:6px;
+  --font-head:'Manrope',sans-serif;--font-body:'Inter',sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;
+  --border:#333;--text:#f5f5f5;--text2:#aaa;--muted:#666;
+  --primary:#bb86fc;--primary-lt:#2d1f45;--primary-dk:#9b59fa;
+  --secondary:#03dac6;--secondary-lt:#003333;
+  --shadow:0 2px 8px rgba(0,0,0,.4);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+
+.topbar{position:sticky;top:0;z-index:200;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:8px;height:54px;box-shadow:var(--shadow)}
+.topbar-logo{width:30px;height:30px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.topbar-title{font-family:var(--font-head);font-size:15px;font-weight:800;flex:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
+.icon-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.icon-btn:hover{background:var(--primary-lt);border-color:var(--primary)}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--primary);text-decoration:none;padding:6px 2px}
+.back-link:hover{text-decoration:underline}
+
+.page-wrap{max-width:720px;margin:0 auto;padding:28px 18px 10px}
+.page-hero{padding:6px 0 22px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.page-badge{display:inline-block;background:var(--primary-lt);color:var(--primary);font-size:11px;font-weight:600;padding:3px 12px;border-radius:20px;margin-bottom:12px}
+.page-hero h1{font-family:var(--font-head);font-size:clamp(24px,5vw,34px);font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:8px;line-height:1.15}
+.page-hero p{font-size:13.5px;color:var(--text2);max-width:520px;line-height:1.6}
+.updated{font-size:11.5px;color:var(--muted);margin-top:10px}
+
+.content h2{font-family:var(--font-head);font-size:16px;font-weight:800;color:var(--text);margin:26px 0 10px}
+.content h2:first-child{margin-top:0}
+.content p{font-size:13.5px;color:var(--text2);line-height:1.75;margin-bottom:12px}
+.content ul{margin:0 0 12px 20px}
+.content li{font-size:13.5px;color:var(--text2);line-height:1.75;margin-bottom:6px}
+.content a{color:var(--primary);text-decoration:none;font-weight:600}
+.content a:hover{text-decoration:underline}
+.content strong{color:var(--text);font-weight:700}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin:14px 0}
+.info-card b{color:var(--text);font-size:13px}
+
+.contact-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:18px 0}
+@media(min-width:560px){.contact-grid{grid-template-columns:1fr 1fr}}
+.contact-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:flex-start;gap:12px}
+.contact-card .ic{font-size:20px;flex-shrink:0}
+.contact-card h3{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.contact-card p{font-size:12.5px;color:var(--muted);margin:0}
+
+.form-group{margin-bottom:13px}
+.form-label{display:block;font-size:11.5px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.form-input,.form-textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:13.5px;outline:none;transition:border-color .15s}
+.form-input:focus,.form-textarea:focus{border-color:var(--primary);background:var(--surface)}
+.form-textarea{resize:vertical;min-height:100px}
+.form-err{font-size:11px;color:var(--red);margin-top:3px;display:none}
+.btn{border:none;border-radius:var(--radius-sm);padding:11px 20px;font-family:var(--font-head);font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{opacity:.88}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--text);color:var(--bg);border-radius:24px;padding:9px 20px;font-size:13px;font-weight:500;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:90vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.green{background:var(--green);color:#fff}
+
+.footer{border-top:1px solid var(--border);padding:20px 16px;background:var(--surface);text-align:center;margin-top:30px}
+.footer-title{font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:4px}
+.footer-sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;margin-bottom:10px}
+.footer-links a{font-size:11.5px;color:var(--text2);text-decoration:none;font-weight:500}
+.footer-links a:hover{color:var(--primary);text-decoration:underline}
+.footer-copy{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-logo" style="text-decoration:none">🧬</a>
+  <a href="index.html" class="topbar-title">MedLab Reference</a>
+  <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+</div>
+
+<div class="page-wrap">
+  <a href="index.html" class="back-link">← Back to Test Search</a>
+  <section class="page-hero">
+    <div class="page-badge">📜 Legal</div>
+    <h1>Terms &amp; Conditions</h1>
+    <p>The rules and guidelines for using MedLab Reference.</p>
+    <div class="updated">Last updated: July 13, 2026</div>
+  </section>
+
+  <div class="content">
+    <h2>Acceptance of terms</h2>
+    <p>By accessing or using MedLab Reference (the "Site"), you agree to be bound by these Terms &amp; Conditions. If you do not agree, please do not use the Site.</p>
+
+    <h2>Not medical advice</h2>
+    <p>The Site provides general reference information about medical laboratory tests, including typical normal ranges, units, and descriptions. <strong>This information is for general educational purposes only and is not medical advice.</strong> Reference ranges vary by laboratory, testing method, patient demographics, and individual health status. Always consult a qualified healthcare professional to interpret your own lab results, and never disregard professional medical advice or delay seeking it because of something you read on this Site.</p>
+
+    <h2>Use of the site</h2>
+    <p>You agree to use the Site only for lawful purposes. You may not:</p>
+    <ul>
+      <li>Attempt to gain unauthorized access to the Site, its accounts, or its underlying systems</li>
+      <li>Use automated tools to scrape or copy site data at a scale that disrupts service for other users</li>
+      <li>Submit false, misleading, abusive, or malicious content through the suggestion or contact forms</li>
+      <li>Use the Site to violate any applicable law or regulation</li>
+    </ul>
+
+    <h2>Accounts</h2>
+    <p>If you create an account, you're responsible for maintaining the confidentiality of your login credentials and for all activity under your account. You must provide accurate information when registering. We reserve the right to suspend or terminate accounts that violate these terms.</p>
+
+    <h2>User-submitted content</h2>
+    <p>If you submit test suggestions, corrections, or other content through the Site, you grant us a non-exclusive, royalty-free license to use, edit, and publish that content as part of the reference database. We review submissions before adding them and reserve the right to decline, edit, or remove any submission at our discretion.</p>
+
+    <h2>Accuracy and disclaimer of warranties</h2>
+    <p>We make reasonable efforts to keep reference range data accurate and up to date, but we make no warranties or guarantees — express or implied — regarding the completeness, reliability, or accuracy of any information on the Site. The Site is provided <strong>"as is"</strong> and <strong>"as available"</strong> without warranties of any kind.</p>
+
+    <h2>Limitation of liability</h2>
+    <p>To the fullest extent permitted by law, MedLab Reference and its operator shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of, or inability to use, the Site, or from reliance on any information provided on it — including but not limited to decisions made about your health based on Site content.</p>
+
+    <h2>Third-party services</h2>
+    <p>The Site uses Google Firebase for optional account creation and data storage. Your use of those features is also subject to Google's applicable terms of service.</p>
+
+    <h2>Changes to the site or these terms</h2>
+    <p>We may modify, suspend, or discontinue any part of the Site at any time. We may also update these Terms &amp; Conditions periodically; continued use of the Site after changes are posted constitutes acceptance of the revised terms.</p>
+
+    <h2>Governing law</h2>
+    <p>These terms are governed by applicable local law in the operator's jurisdiction, without regard to conflict-of-law principles.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about these Terms can be sent to <a href="mailto:rahat119official@gmail.com">rahat119official@gmail.com</a> or through our <a href="contact.html">Contact page</a>.</p>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-title">🧬 MedLab Reference</div>
+  <div class="footer-sub">Clinical Reference Database — For informational use only</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About Us</a>
+    <a href="contact.html">Contact Us</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms &amp; Conditions</a>
+  </div>
+  <div class="footer-copy">© <span id="curYear">2025</span> MedLab Reference · Always consult a healthcare professional</div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+function initTheme(){ var isDark=localStorage.getItem('theme')==='dark'; document.documentElement.setAttribute('data-theme',isDark?'dark':'light'); var btn=document.getElementById('themeBtn'); if(btn) btn.textContent=isDark?'☀️':'🌙'; }
+function toggleTheme(){ var isDark=localStorage.getItem('theme')==='dark'; isDark=!isDark; localStorage.setItem('theme',isDark?'dark':'light'); initTheme(); }
+initTheme();
+var _yr=new Date().getFullYear(); var _ye=document.getElementById('curYear'); if(_ye) _ye.textContent=_yr;
+function toast(msg,cls){ var t=document.getElementById('toast'); if(!t)return; t.textContent=msg; t.className=cls?cls:''; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2600); }
+</script>
+</body>
+</html>
